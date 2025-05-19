@@ -1,10 +1,10 @@
-import { StyleSheet,KeyboardAvoidingView, ScrollView, Platform,} from 'react-native';
-import react, {useState} from 'react'
+import { StyleSheet, Platform} from 'react-native';
+import {useState} from 'react'
 import LogoFull from '../components/LogoFull';
 import TextField from '../components/TextField';
 import SignInSignUpButton from '../components/SignInSignUpButton';
 import RedirectText from '../components/RedirectText';
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 
 export default function LoginScreen({navigation}) {
@@ -19,31 +19,33 @@ export default function LoginScreen({navigation}) {
     // else{
     //   navigation.replace('Nav-Tela2')
     // }
-    return
+    navigation.replace('Clients')
   }
 
-  const navigate = () => {
-    alert("clique")
+  const navigateToRegister = () => {
+    navigation.navigate('Register')
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardAvoiding}
-      behavior="padding"
+    <KeyboardAwareScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.container}
+      enableOnAndroid
+      extraScrollHeight={50}
+      keyboardOpeningTime={0}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" >
         <LogoFull />
 
         <TextField value={email} onChangeText={setEmail} placeholder="Email" keyboardType="email-address" />
 
         <TextField value={senha} onChangeText={setSenha} placeholder="Senha" security={true} />
 
-        <RedirectText text="não possui uma conta?" link="Cadastre-se" onPress={navigate}/>
+        <RedirectText text="não possui uma conta?" link="Cadastre-se" onPress={navigateToRegister}/>
 
         <SignInSignUpButton title="Entrar" onPress={handleLogin} />
 
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 }
 
@@ -53,15 +55,15 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
-    },
-    keyboardAvoiding: {
+  },
+  keyboardAvoiding: {
       flex: 1,
       backgroundColor: '#fff',   
-    },
-    scrollView: {
+  },
+  scrollView: {
       flex: 1,
       backgroundColor: '#fff',   
-    },
+  },
 
 });
 

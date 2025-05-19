@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
         width: 300, 
         height: 133, 
         resizeMode:'contain',
-        marginBottom: 60
+
     }
 })
 
