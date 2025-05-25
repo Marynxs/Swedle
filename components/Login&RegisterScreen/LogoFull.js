@@ -5,11 +5,11 @@ export default function LogoFull() {
     return (
     <>
         <Image
-        source={require('../assets/Logo.png')}
+        source={require('../../assets/Logo.png')}
         style={styles.Logo}
         />
         <Image
-        source={require('../assets/Texto.png')}
+        source={require('../../assets/Texto.png')}
         style={styles.Texto}
         />
     </>

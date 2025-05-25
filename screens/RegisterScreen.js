@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, Platform } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import LogoFull from '../components/LogoFull';
+import LogoFull from '../components/Login&RegisterScreen/LogoFull';
 import TextField from '../components/TextField';
-import SignInSignUpButton from '../components/SignInSignUpButton';
-import RedirectText from '../components/RedirectText';
-import ErrorText from '../components/ErrorText';
+import SignInSignUpButton from '../components/Login&RegisterScreen/SignInSignUpButton';
+import RedirectText from '../components/Login&RegisterScreen/RedirectText';
+import ErrorText from '../components/Login&RegisterScreen/ErrorText';
+import ScreenView from '../components/Login&RegisterScreen/ScreenView';
 
 export default function RegisterScreen({ navigation }) {
   const [email, setEmail]                 = useState('');
@@ -52,14 +51,7 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAwareScrollView
-      style={styles.scrollView}
-      contentContainerStyle={styles.container}
-      enableOnAndroid
-      extraScrollHeight={50}
-      keyboardOpeningTime={0}
-      keyboardShouldPersistTaps="handled"
-    >
+  <ScreenView>
       <LogoFull />
 
       <TextField value={email} onChangeText={setEmail} placeholder="Email" keyboardType="email-address" />
@@ -74,20 +66,6 @@ export default function RegisterScreen({ navigation }) {
 
       <SignInSignUpButton title="Criar Conta" onPress={handleRegister} />
 
-    </KeyboardAwareScrollView>
+  </ScreenView>
   );
 }
-
-const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-
-});

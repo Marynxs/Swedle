@@ -1,4 +1,4 @@
-import { Pressable, Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 
 
 export default function RedirectText({text, link, onPress }) {
@@ -16,7 +16,7 @@ export default function RedirectText({text, link, onPress }) {
 
   const styles = StyleSheet.create({
     container:{
-        width:'75%',
+        width:'100%',
         marginBottom: 50
     },
     text: {

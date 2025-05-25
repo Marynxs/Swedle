@@ -1,7 +1,5 @@
 import { Text, StyleSheet } from "react-native";
 
-
-
 export default function ErrorText({error}) {
 
     return(
@@ -15,7 +13,7 @@ export default function ErrorText({error}) {
 const styles = StyleSheet.create({
     errorText: {
         color: 'red',
-        width: '75%',
+        width:'100%',
         marginTop: -20,
         marginBottom: 12,
         textAlign: 'left',

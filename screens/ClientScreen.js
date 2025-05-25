@@ -1,6 +1,5 @@
 import React from "react";
 import { Text, StyleSheet, View, TouchableOpacity, FlatList } from "react-native";
-import { SafeAreaView } from "react-native";
 import { Feather } from '@expo/vector-icons'; 
 import ClientCard from "../components/ClientCard";
 
@@ -94,7 +93,7 @@ export default function ClientScreen({navigation}) {
                     onPress={() => navigation.navigate('Medidas_Clientes', { cliente: item })}
                     />
                 )}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 ListHeaderComponent={
                   <View style={styles.header}>
                     <Text style={styles.title}>Clientes</Text>
@@ -112,7 +111,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
   },
   header: {
     flex: 0.1,
@@ -130,9 +129,12 @@ const styles = StyleSheet.create({
     color: '#323232'
   },
   lista: {
-    paddingLeft: 25,
-    paddingRight: 25,
+    width:'95%',
+    alignSelf:'center',
     paddingTop: 20,
+    paddingRight: 10,
+    paddingLeft: 15,
+    
     fontFamily: 'Inter_400Regular'
   }
 });

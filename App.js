@@ -44,7 +44,6 @@ if (!fontsLoaded) {
           headerShown: true,
           title: ' Voltar',
           headerShadowVisible: false,
-
           
           headerLeft: () => (
             <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 5 }}>

@@ -1,13 +1,8 @@
 import React from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function SignInSignUpButton({
-    title,
-    onPress,
-}) {
-
+export default function SignInSignUpButton({ title, onPress,}) {
     return(
-        
         <TouchableOpacity onPress={onPress} style={styles.button}>
             <Text style={styles.text}>{title}</Text>
         </TouchableOpacity>

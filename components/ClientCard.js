@@ -17,6 +17,7 @@ export default function ClientCard({nome, telefone, imagem, onPress}){
 
 const styles = StyleSheet.create({
     card: {
+      width:'100%',
       backgroundColor: '#F0BC20', 
       padding: 25,
       marginVertical: 8,

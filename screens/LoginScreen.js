@@ -1,10 +1,9 @@
-import { StyleSheet, Platform} from 'react-native';
 import {useState} from 'react'
-import LogoFull from '../components/LogoFull';
+import LogoFull from '../components/Login&RegisterScreen/LogoFull';
 import TextField from '../components/TextField';
-import SignInSignUpButton from '../components/SignInSignUpButton';
-import RedirectText from '../components/RedirectText';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import SignInSignUpButton from '../components/Login&RegisterScreen/SignInSignUpButton';
+import RedirectText from '../components/Login&RegisterScreen/RedirectText';
+import ScreenView from '../components/Login&RegisterScreen/ScreenView';
 
 
 export default function LoginScreen({navigation}) {
@@ -27,43 +26,20 @@ export default function LoginScreen({navigation}) {
   }
 
   return (
-    <KeyboardAwareScrollView
-      style={styles.scrollView}
-      contentContainerStyle={styles.container}
-      enableOnAndroid
-      extraScrollHeight={50}
-      keyboardOpeningTime={0}
-      keyboardShouldPersistTaps="handled"
-    >
-        <LogoFull />
+    <ScreenView>
+      
+          <LogoFull />
 
-        <TextField value={email} onChangeText={setEmail} placeholder="Email" keyboardType="email-address" />
+          <TextField value={email} onChangeText={setEmail} placeholder="Email" keyboardType="email-address" />
 
-        <TextField value={senha} onChangeText={setSenha} placeholder="Senha" security={true} />
+          <TextField value={senha} onChangeText={setSenha} placeholder="Senha" security={true} />
 
-        <RedirectText text="não possui uma conta?" link="Cadastre-se" onPress={navigateToRegister}/>
+          <RedirectText text="não possui uma conta?" link="Cadastre-se" onPress={navigateToRegister}/>
 
-        <SignInSignUpButton title="Entrar" onPress={() => navigation.replace('Tela_Clientes')} />
+          <SignInSignUpButton title="Entrar" onPress={() => navigation.replace('Tela_Clientes')} />
 
-    </KeyboardAwareScrollView>
+    </ScreenView>
+
   );
 }
-
-export const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,          
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  keyboardAvoiding: {
-      flex: 1,
-      backgroundColor: '#fff',   
-  },
-  scrollView: {
-      flex: 1,
-      backgroundColor: '#fff',   
-  },
-
-});
 
