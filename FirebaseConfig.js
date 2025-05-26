@@ -5,18 +5,20 @@ import { initializeApp } from "firebase/app";
 import { getAuth, initializeAuth, getReactNativePersistence} from "firebase/auth"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from "firebase/storage";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAqQs1AozMir1gyVW62QUFBwtRH_rLW5is",
-  authDomain: "swedle-67d07.firebaseapp.com",
-  projectId: "swedle-67d07",
-  storageBucket: "swedle-67d07.firebasestorage.app",
-  messagingSenderId: "1042129653412",
-  appId: "1:1042129653412:web:a0d8a879c0d48aa1db6031"
+  apiKey: "AIzaSyBl8amcLHAPD-5kv2QEto_U-w7d8R7Ma9Y",
+  authDomain: "swedle-7082c.firebaseapp.com",
+  projectId: "swedle-7082c",
+  storageBucket: "swedle-7082c.firebasestorage.app",
+  messagingSenderId: "416773066958",
+  appId: "1:416773066958:web:876178ddecc333ae5e409f"
 };
 
 
@@ -29,3 +31,5 @@ export const auth =
     : initializeAuth(app, {
         persistence: getReactNativePersistence(AsyncStorage)
       });
+export const db = getFirestore(app)
+export const storage = getStorage(app);

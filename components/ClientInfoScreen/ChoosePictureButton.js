@@ -1,12 +1,14 @@
 import { View, StyleSheet,TouchableOpacity, Image} from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default function ChoosePictureButton({onPress}) {
+
+export default function ChoosePictureButton({ onPress, uri }) {
 
     return(
         <View style={styles.imageContainer}>
         <TouchableOpacity onPress={onPress}>
-            <Image source={require('../../assets/avatar5.png')} style={styles.profileImage} />
+            {uri ? (<Image source={{ uri }} style={styles.profileImage} />) : (<Ionicons name="person-circle-outline" size={85} style={styles.profileImage}/>)}
         </TouchableOpacity>
         <TouchableOpacity style={styles.editIcon} onPress={onPress}>
             <Feather name="camera" size={18} color="black#" />

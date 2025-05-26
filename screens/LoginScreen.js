@@ -6,7 +6,7 @@ import RedirectText from '../components/Login&RegisterScreen/RedirectText';
 import ScreenView from '../components/Login&RegisterScreen/ScreenView';
 import ErrorText from '../components/Login&RegisterScreen/ErrorText';
 
-import { auth } from '../FirebaseConfig';
+import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function LoginScreen({navigation}) {

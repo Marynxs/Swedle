@@ -7,7 +7,7 @@ import RedirectText from '../components/Login&RegisterScreen/RedirectText';
 import ErrorText from '../components/Login&RegisterScreen/ErrorText';
 import ScreenView from '../components/Login&RegisterScreen/ScreenView';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../FirebaseConfig';
+import { auth } from '../firebaseConfig';
 
 export default function RegisterScreen({ navigation }) {
   const [email, setEmail]                 = useState('');
