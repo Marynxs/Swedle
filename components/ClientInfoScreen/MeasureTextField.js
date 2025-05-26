@@ -14,7 +14,7 @@ export default function MeasureTextField() {
         <View style={styles.measureValueWrapper}>
         <Text style={styles.verticalLine} />
         <TextInput
-            placeholder="00"
+            placeholder="00.0"
             keyboardType="numeric"
             style={styles.measureValueInput}
             placeholderTextColor="#838383"
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     paddingRight: 4,
   },
   measureValueInput: {
-    width: 40,
+    width: 50,
     fontSize: 14,
     fontFamily: 'Inter_400Regular',
     textAlign: 'center',

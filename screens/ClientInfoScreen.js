@@ -7,7 +7,8 @@ import AddMeasureButton from '../components/ClientInfoScreen/AddMeasureButton'
 import ChoosePictureButton from '../components/ClientInfoScreen/ChoosePictureButton';
 import Header from '../components/Header/Header'
 
-export default function ClientInfoScreen({ navigation }) {
+export default function ClientInfoScreen({ navigation, route }) {
+    const { headerTitle } = route.params;
     const [measures, setMeasures] = useState([0,1]);
 
     const createAddMeasure = () => {
@@ -21,9 +22,9 @@ export default function ClientInfoScreen({ navigation }) {
         contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={true}
         enableOnAndroid={true}
-        extraScrollHeight={150}
+        extraScrollHeight={250}
       >
-        <Header headerTitle={'Clientes'} navigation={navigation}/>
+        <Header headerTitle={headerTitle} navigation={navigation}/>
 
         <Text style={styles.sectionTitle}>Informações do Cliente</Text>
         <View style={styles.formContainer}>

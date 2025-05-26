@@ -26,7 +26,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
         navigation={navigation}
         headerTitle={cliente.nome}
         menuItems={[
-          { label: 'Editar', iconName: 'pencil-outline', onPress: () => {/* editar */} },
+          { label: 'Editar', iconName: 'pencil-outline', onPress: () => navigation.navigate('Cadastro_Editar_Clientes', { headerTitle: 'Editar Cliente'}) },
           { label: 'Apagar', iconName: 'trash-outline', color: '#BE1515', onPress: () => {/* apagar */} },
         ]}
       />

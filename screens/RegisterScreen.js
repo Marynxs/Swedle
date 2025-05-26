@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 
 import LogoFull from '../components/Login&RegisterScreen/LogoFull';
 import TextField from '../components/TextField';
@@ -6,6 +6,8 @@ import SignInSignUpButton from '../components/Login&RegisterScreen/SignInSignUpB
 import RedirectText from '../components/Login&RegisterScreen/RedirectText';
 import ErrorText from '../components/Login&RegisterScreen/ErrorText';
 import ScreenView from '../components/Login&RegisterScreen/ScreenView';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../FirebaseConfig';
 
 export default function RegisterScreen({ navigation }) {
   const [email, setEmail]                 = useState('');
@@ -13,29 +15,46 @@ export default function RegisterScreen({ navigation }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError]                 = useState('');
 
-  const handleRegister = () => {
-    setError('');
+  const handleRegister = async () => {
 
     if (!verifyErrors()) {
       return
     }
+    else{
+      try{
+        const user = await createUserWithEmailAndPassword(auth, email, password)
+        if (user)
+          navigation.replace('Clients')
+      }
+      catch (error) {
+        console.log(error)
+        
+        switch(error.code){
+          case "auth/password-does-not-meet-requirements":
+              setError("A senha deve ter no mínimo 6 caracteres, incluindo ao menos um número e uma letra maiúscula.");
+              break
+          default:
+              setError("Erro ao criar a conta")
+              break
+        }
+        }
+      }
 
-    // prosseguir com o cadastro...
   };
 
+
+  const isValidEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(String(email).toLowerCase());
+  };
+
+
+
   const verifyErrors = () => {
+    setError('');
 
-
-    if (email.length === 0) {
-      setError('O campo de email esta vázio');
-      return false;
-    }
-    if (password.length === 0) {
-      setError('O campo de senha esta vázio');
-      return false;
-    }
-    if (password.length < 6) {
-      setError('A senha precisa ter pelo menos 6 caracteres.');
+    if (!isValidEmail(email)) {
+      setError("Digite um email válido");
       return false;
     }
     if (password !== confirmPassword) {

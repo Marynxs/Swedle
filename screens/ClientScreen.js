@@ -97,7 +97,7 @@ export default function ClientScreen({navigation}) {
                 ListHeaderComponent={
                   <View style={styles.header}>
                     <Text style={styles.title}>Clientes</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Cadastro_Editar_Clientes')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Cadastro_Editar_Clientes', { headerTitle: 'Criar Cliente'})}>
                       <Feather name="plus" size={28} color="#323232" />
                     </TouchableOpacity>
                   </View>

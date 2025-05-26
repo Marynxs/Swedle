@@ -1,10 +1,11 @@
+import 'react-native-get-random-values';
+import 'react-native-url-polyfill/auto';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native'
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button } from 'react-native';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
 import { ActivityIndicator,  TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
 
 //Telas
 import RegisterScreen from './screens/RegisterScreen';
@@ -53,7 +54,7 @@ if (!fontsLoaded) {
         })}
         component={RegisterScreen} 
       />
-      <Stack.Screen name='Tela_Clientes' component={Bottom_Tabs} />
+      <Stack.Screen name='Clients' component={Bottom_Tabs} />
       <Stack.Screen name='Cadastro_Editar_Clientes' component={ClientInfoScreen}/>
       <Stack.Screen name='Medidas_Clientes' component={ClientMeasuresScreen}/>
       </Stack.Navigator>

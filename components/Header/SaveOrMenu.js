@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  Image,
-  Modal
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Image, Modal} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 
@@ -47,23 +39,22 @@ export default function SaveOrMenu({
             {menuVisible && (
               <View style={styles.menu}>
                 {menuItems.map((item, i) => (
-                  <>
-                  <TouchableOpacity
-                    key={i}
-                    style={styles.menuItem}
-                    onPress={() => {
-                      closeMenu();
-                      item.onPress();
-                    }}>
+                  <View key={i}>
+                    <TouchableOpacity
+                      style={styles.menuItem}
+                      onPress={() => {
+                        closeMenu();
+                        item.onPress();
+                      }}>
 
-                    <Text style={[ styles.menuText, item.color ? { color: item.color } : null ]}> {item.label} </Text>
+                      <Text style={[ styles.menuText, item.color ? { color: item.color } : null ]}> {item.label} </Text>
 
-                    <Ionicons name={item.iconName} size={18} color={item.color || '#323232'} />
-                    
-                  </TouchableOpacity>
+                      <Ionicons name={item.iconName} size={18} color={item.color || '#323232'} />
+                      
+                    </TouchableOpacity>
 
-                  {i < menuItems.length - 1 && <View style={styles.menuDivider} />}
-                  </>
+                    {i < menuItems.length - 1 && <View style={styles.menuDivider} />}
+                  </View>
                 ))}
               </View>
             )}
