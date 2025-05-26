@@ -36,4 +36,4 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-FireBaseConfig.js
+FireBaseConfig.jsFirebaseConfig.js
