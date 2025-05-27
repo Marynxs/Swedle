@@ -1,33 +1,140 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import Header from '../components/Header/Header';
 import Measurements from '../components/Measurements';
 
+import { auth, db, storage } from '../firebaseConfig';
+import { collection, doc, getDocs, deleteDoc, getDoc } from 'firebase/firestore';
+import { ref, deleteObject } from 'firebase/storage';
+
 export default function ClientMeasuresScreen({ route, navigation }) {
-  const { cliente } = route.params;
-  
-  const medidas = [
-    { label: 'Busto', valor: '98' },
-    { label: 'Torax', valor: '68' },
-    { label: 'Cintura', valor: '92' },
-    { label: 'Quadril', valor: '82' },
-    { label: 'Pernas', valor: '92' },
-    { label: 'Braços', valor: '28' },
-    { label: 'Braços', valor: '28' },
-    { label: 'Braços', valor: '28' },
-    { label: 'Braços', valor: '28' },
-    { label: 'Braços', valor: '28' },
-    { label: 'Braços', valor: '28' },
-  ];
+  const { client } = route.params;
+  const [medidas, setMedidas] = useState([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const fetchMeasurements = async () => {
+        try {
+          const user = auth.currentUser;
+          if (!user) throw new Error('Usuário não autenticado');
+
+          // 1) Recarrega o documento do client
+          const clientRef = doc(
+            db,
+            'users',
+            user.uid,
+            'clients',
+            client.id
+          );
+          const clientSnap = await getDoc(clientRef);
+          if (!clientSnap.exists()) throw new Error('Cliente não encontrado');
+
+          const clientData = clientSnap.data();
+
+          // 2) Busca todas as medidas
+          const measuresCol = collection(
+            db,
+            'users',
+            user.uid,
+            'clients',
+            client.id,
+            'measurements'
+          );
+          const measuresSnap = await getDocs(measuresCol);
+
+          const arr = measuresSnap.docs.map(mDoc => ({
+            label: mDoc.data().description,
+            valor: mDoc.data().sizeCm
+          }));
+
+          if (isActive) {
+            setMedidas(arr);
+          }
+        } catch (error) {
+          console.error(error);
+          Alert.alert('Erro ao carregar medidas', error.message);
+        }
+      };
+
+      fetchMeasurements();
+
+      return () => {
+        // para evitar setState após unmount
+        isActive = false;
+      };
+    }, [client.id])
+  );
+
+    const handleDelete = () => {
+    Alert.alert(
+      'Confirmar exclusão',
+      `Deseja apagar o client ${client.nome}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Apagar', style: 'destructive', onPress: deleteClient }
+      ]
+    );
+  };
+
+  const deleteClient = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('Usuário não autenticado');
+
+      // 1) Apaga todas as medidas
+      const measuresCol = collection(
+        db,
+        'users',
+        user.uid,
+        'clients',
+        client.id,
+        'measurements'
+      );
+      const measuresSnap = await getDocs(measuresCol);
+      for (const mDoc of measuresSnap.docs) {
+        await deleteDoc(mDoc.ref);
+      }
+
+      // 2) Apaga a foto no Storage (se existir)
+      if (client.imagemUrl) {
+        const imageRef = ref(
+          storage,
+          `users/${user.uid}/clients/${client.id}/photo.jpg`
+        );
+        await deleteObject(imageRef);
+      }
+
+      // 3) Apaga o documento do client
+      const clientRef = doc(
+        db,
+        'users',
+        user.uid,
+        'clients',
+        client.id
+      );
+      await deleteDoc(clientRef);
+
+      // 4) Feedback e volta
+      Alert.alert('Sucesso', 'client apagado.');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Erro ao apagar client:', error);
+      Alert.alert('Erro', error.message);
+    }
+  };
+
 
   return (
     <View style={styles.container}>
       <Header
         navigation={navigation}
-        headerTitle={cliente.nome}
+        headerTitle={client.nome}
         menuItems={[
-          { label: 'Editar', iconName: 'pencil-outline', onPress: () => navigation.navigate('Cadastro_Editar_Clientes', { headerTitle: 'Editar Cliente'}) },
-          { label: 'Apagar', iconName: 'trash-outline', color: '#BE1515', onPress: () => {/* apagar */} },
+          { label: 'Editar', iconName: 'pencil-outline', onPress: () => navigation.navigate('Cadastro_Editar_Clientes', { headerTitle: 'Editar cliente', client: client}) },
+          { label: 'Apagar', iconName: 'trash-outline', color: '#BE1515', onPress: handleDelete },
         ]}
       />
        

@@ -1,96 +1,104 @@
-import React from "react";
-import { Text, StyleSheet, View, TouchableOpacity, FlatList } from "react-native";
+import React, { useState, useEffect, useCallback} from "react";
+import { Text, StyleSheet, View, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons'; 
 import ClientCard from "../components/ClientCard";
 
+import { auth, db } from "../firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
+
 
 export default function ClientScreen({navigation}) {
-    const clientes = [
-        {
-            id: '1',
-            nome: 'João Silva',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar.png') 
-        },
-        {
-            id: '2',
-            nome: 'Maria Souza',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar2.png')
-        },
-        {
-            id: '3',
-            nome: 'João Silva',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar3.png') 
-        },
-        {
-            id: '4',
-            nome: 'Maria Souza',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar4.png')
-        },
-        {
-          id: '5',
-          nome: 'João Silva',
-          telefone: '+55 11 9999-9999',
-          imagem: require('../assets/avatar.png') 
-        },
-        {
-            id: '6',
-            nome: 'Maria Souza',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar2.png')
-        },
-        {
-            id: '7',
-            nome: 'João Silva',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar3.png') 
-        },
-        {
-            id: '8',
-            nome: 'Maria Souza',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar4.png')
-        },
-        {
-          id: '9',
-          nome: 'João Silva',
-          telefone: '+55 11 9999-9999',
-          imagem: require('../assets/avatar.png') 
-        },
-        {
-            id: '10',
-            nome: 'Maria Souza',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar2.png')
-        },
-        {
-            id: '11',
-            nome: 'João Silva',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar3.png') 
-        },
-        {
-            id: '12',
-            nome: 'Maria Souza',
-            telefone: '+55 11 9999-9999',
-            imagem: require('../assets/avatar4.png')
-        },
-      ];
+
+    const [clients, setClients] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const fetchClients = async () => {
+        setLoading(true);
+        try {
+          const user = auth.currentUser;
+          if (!user) return;
+          const clientsCol = collection(db, "users", user.uid, "clients");
+          const clientsSnap = await getDocs(clientsCol);
+
+          const clientsData = await Promise.all(
+            clientsSnap.docs.map(async docSnap => {
+              const data = docSnap.data();
+              const clientId = docSnap.id;
+              const measuresCol = collection(db, "users", user.uid, "clients", clientId, "measurements");
+              const measuresSnap = await getDocs(measuresCol);
+              const measurements = measuresSnap.docs.map(m => ({ id: m.id, ...m.data() }));
+              return {
+                id: clientId,
+                nome: data.name,
+                email: data.email,
+                telefone: data.phone,
+                imagemUrl: data.photoURL,
+                measurements
+              };
+            })
+          );
+
+          if (isActive) setClients(clientsData);
+        } catch (err) {
+          console.error("Erro ao buscar clientes:", err);
+        } finally {
+          if (isActive) setLoading(false);
+        }
+      };
+
+      fetchClients();
+
+      // cleanup caso a tela seja deixada antes de terminar a busca
+      return () => { isActive = false; };
+    }, [])
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.containerCentered}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  //ALTERAR DEPOIS
+  const applyPhoneMask = (value) => {
+    // Remove todos os caracteres não numéricos
+    const numbers = value.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos (2 para DDD + 9 para número)
+    const limitedNumbers = numbers.slice(0, 11);
+    
+    if (limitedNumbers.length <= 2) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 6) {
+      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2)}`;
+    } else if (limitedNumbers.length <= 10) {
+      // Formato (DD)nnnn-nnnn para números com 8 dígitos
+      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2, 6)}-${limitedNumbers.slice(6)}`;
+    } else {
+      // Formato (DD)nnnnn-nnnn para números com 9 dígitos
+      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2, 7)}-${limitedNumbers.slice(7)}`;
+    }
+  };
+
 
     return (
         <View style={styles.container}>
             <FlatList style={styles.lista}
-                data={clientes}
+                data={clients}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <ClientCard
                     nome={item.nome}
-                    telefone={item.telefone}
-                    imagem={item.imagem}
-                    onPress={() => navigation.navigate('Medidas_Clientes', { cliente: item })}
+                    telefone={applyPhoneMask(item.telefone)}
+                    imagemURL={item.imagemUrl}
+                    onPress={() => navigation.navigate('Medidas_Clientes', { client: item })}
                     />
                 )}
                 showsVerticalScrollIndicator={true}
@@ -112,6 +120,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
     backgroundColor: '#ffffff',
+  },
+  containerCentered: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
   },
   header: {
     flex: 0.1,

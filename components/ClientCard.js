@@ -1,16 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
 
-export default function ClientCard({nome, telefone, imagem, onPress}){
+export default function ClientCard({nome, telefone, imagemURL, onPress}){
     return(
         <TouchableOpacity style={styles.card} onPress={onPress}>
-            <Image source={imagem} style={styles.avatar}/>
-            <View>
-                <Text style={styles.nome}>{nome}</Text>
-                <Text style={styles.telefone}>{telefone}</Text>
-            </View>
-            <Feather name="chevron-right" size={24} color="#323232" style={styles.seta} />
+          {imagemURL ? ( <Image source={{ uri: imagemURL }} style={styles.avatar} /> ) : ( <Ionicons name="person-circle-outline" size={65} style={styles.avatar} /> )}
+          <View>
+              <Text style={styles.nome}>{nome}</Text>
+              <Text style={styles.telefone}>{telefone}</Text>
+          </View>
+          <Feather name="chevron-right" size={24} color="#323232" style={styles.seta} />
         </TouchableOpacity>
     );
 }
