@@ -3,6 +3,7 @@ import { Text, StyleSheet, View, TouchableOpacity, FlatList, ActivityIndicator }
 import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons'; 
 import ClientCard from "../components/ClientCard";
+import HeaderClientConfig from "../components/Header/HeaderClient&Config";
 
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
@@ -104,7 +105,7 @@ export default function ClientScreen({navigation}) {
                 showsVerticalScrollIndicator={true}
                 ListHeaderComponent={
                   <View style={styles.header}>
-                    <Text style={styles.title}>Clientes</Text>
+                    <HeaderClientConfig title="Clientes"/>
                     <TouchableOpacity onPress={() => navigation.navigate('Cadastro_Editar_Clientes', { headerTitle: 'Criar Cliente'})}>
                       <Feather name="plus" size={28} color="#323232" />
                     </TouchableOpacity>
@@ -136,18 +137,12 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingTop: 50
   },
-  title: {
-    fontSize: 24,
-    fontFamily: 'Inter_500Medium',
-    color: '#323232'
-  },
   lista: {
     width:'95%',
     alignSelf:'center',
     paddingTop: 20,
     paddingRight: 10,
     paddingLeft: 15,
-    
     fontFamily: 'Inter_400Regular'
   }
 });
