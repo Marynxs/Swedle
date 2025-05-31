@@ -10,7 +10,6 @@ export default function TextField({
   placeholder,
   security = false,
   keyboardType = 'default',
-  placeholderTextColor = '#848484',
   lineStyle,
 }) {
   const {colors} = useTheme()

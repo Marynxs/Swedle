@@ -8,6 +8,7 @@ import HeaderClientConfig from "../components/Header/HeaderClient&Config";
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import { useTheme } from "../hooks/useTheme";
+import LoadingScreen from "../components/LoadingScreen";
 
 
 export default function ClientScreen({navigation}) {
@@ -61,13 +62,7 @@ export default function ClientScreen({navigation}) {
     }, [])
   );
 
-  if (loading) {
-    return (
-      <View style={[styles.containerCentered, {backgroundColor: colors.background}]}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  
 
   //ALTERAR DEPOIS
   const applyPhoneMask = (value) => {
@@ -90,6 +85,9 @@ export default function ClientScreen({navigation}) {
     }
   };
 
+    if (loading) {
+      return <LoadingScreen loading={loading} />;
+    }
 
     return (
         <View style={[styles.container , { backgroundColor: colors.background }]}>
@@ -122,11 +120,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
-  },
-  containerCentered: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
   },
   header: {
     flex: 0.1,

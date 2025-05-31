@@ -17,10 +17,13 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 
 import { useTheme } from '../hooks/useTheme';
 
+import LoadingScreen from '../components/LoadingScreen';
+
 
 
 export default function ClientInfoScreen({ navigation, route }) {
   const { colors } = useTheme()
+  const [loading, setLoading] = useState(false)
 
   const editingClient = route.params?.client;      // undefined se criação
   const clientId      = editingClient?.id;
@@ -219,6 +222,7 @@ export default function ClientInfoScreen({ navigation, route }) {
     setMeasures(prev => prev.filter((_, i) => i !== index));
 
   const handleSave = async () => {
+    setLoading(true)
     try{
       // Validar todos os campos antes de salvar
       const isNameValid = validateName(name);
@@ -305,8 +309,15 @@ export default function ClientInfoScreen({ navigation, route }) {
       console.error('Resposta do servidor:', error.customData?.serverResponse);
       Alert.alert('Erro', error.message);
     }
+    finally{
+      setLoading(false)
+    }
   };
   
+  if (loading) {
+    return <LoadingScreen loading={loading} />;
+  }
+
   return (
     <View style={[styles.container , { backgroundColor: colors.background }]}>
       <KeyboardAwareScrollView

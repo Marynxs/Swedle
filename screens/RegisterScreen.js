@@ -8,12 +8,14 @@ import ErrorText from '../components/Login&RegisterScreen/ErrorText';
 import ScreenView from '../components/Login&RegisterScreen/ScreenView';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
+import LoadingScreen from '../components/LoadingScreen';
 
 export default function RegisterScreen({ navigation }) {
   const [email, setEmail]                 = useState('');
   const [password, setPassword]           = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError]                 = useState('');
+  const [loading,setLoading] = useState(false)
 
   const handleRegister = async () => {
 
@@ -22,9 +24,9 @@ export default function RegisterScreen({ navigation }) {
     }
     else{
       try{
-        const user = await createUserWithEmailAndPassword(auth, email, password)
-        if (user)
-          navigation.replace('Clients')
+        setLoading(true)
+        await createUserWithEmailAndPassword(auth, email, password)
+        await signInWithEmailAndPassword(auth, email, password)
       }
       catch (error) {
         console.log(error)
@@ -37,6 +39,9 @@ export default function RegisterScreen({ navigation }) {
               setError("Erro ao criar a conta")
               break
         }
+        }
+        finally{
+          setLoading(false)
         }
       }
 
@@ -68,6 +73,10 @@ export default function RegisterScreen({ navigation }) {
   const navigateToLogin = () => {
     navigation.goBack();
   };
+
+  if (loading) {
+    return <LoadingScreen loading={loading} />;
+  }
 
   return (
   <ScreenView>

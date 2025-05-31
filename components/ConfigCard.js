@@ -9,17 +9,26 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
+import TextField from './TextField';
+import ErrorText from './Login&RegisterScreen/ErrorText'
 
-export default function ConfigCard({ action, onPress, isSwitch = false, switchValue, onToggleSwitch, icon, placeHolderText }) {
+export default function ConfigCard({ action, onSubmit, isSwitch = false, switchValue, onToggleSwitch, icon, placeHolderText, errorCurrentPassword, errorAction }) {
   const {colors} = useTheme()
   const [expanded, setExpanded] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('')
   const [value, setValue] = useState('');
 
   const handleToggleExpand = () => {
     if (!isSwitch) {
       setExpanded(prev => !prev);
-      if (onPress) onPress();
     }
+  };
+
+  const handleSave = () => {
+    if (onSubmit) {
+      onSubmit(value, currentPassword);
+    }
+
   };
 
   return (
@@ -56,16 +65,28 @@ export default function ConfigCard({ action, onPress, isSwitch = false, switchVa
 
       {!isSwitch && expanded && (
         <View style={styles.expandedContent}>
-          <TextInput
+
+          <TextField
+            value={currentPassword}
+            onChangeText={setCurrentPassword}
+            placeholder={'Digite sua senha atual'}
+            placeholderTextColor={colors.placeholder} 
+            security = {true}
+          />
+          <ErrorText error={errorCurrentPassword}/>
+
+
+          <TextField
             value={value}
             onChangeText={setValue}
-            style={[styles.input, {color: colors.foreground}]}
             placeholder={placeHolderText}
             placeholderTextColor={colors.placeholder} 
             keyboardType={action.includes('Email') ? 'email-address' : 'default'}
-            secureTextEntry={action.toLowerCase().includes('senha')}
+            security={action.toLowerCase().includes('senha')}
           />
-          <TouchableOpacity style={styles.editButton} onPress={onPress}>
+          <ErrorText error={errorAction}/>
+
+          <TouchableOpacity style={styles.editButton} onPress={handleSave}>
             <Text style={styles.editButtonText}>Alterar</Text>
           </TouchableOpacity>
         </View>
@@ -109,11 +130,6 @@ const styles = StyleSheet.create({
   },
   expandedContent: {
     marginTop: 15
-  },
-  input: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#DFDDDD',
-    paddingVertical: 6,
   },
   editButton: {
     alignSelf: 'flex-end',

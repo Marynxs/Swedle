@@ -5,6 +5,7 @@ import GenericButton from '../components/GenericButton';
 import RedirectText from '../components/Login&RegisterScreen/RedirectText';
 import ScreenView from '../components/Login&RegisterScreen/ScreenView';
 import ErrorText from '../components/Login&RegisterScreen/ErrorText';
+import LoadingScreen from '../components/LoadingScreen';
 
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -12,6 +13,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 export default function LoginScreen({navigation}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading,setLoading] = useState(false)
 
   const [error, setError] = useState('');
   
@@ -47,11 +49,15 @@ export default function LoginScreen({navigation}) {
       }
       else {
         try {
+          setLoading(true)
           await signInWithEmailAndPassword(auth, email, password)
         }
         catch (error) {
         console.log(error.code);
         setError("Erro ao fazer login. Tente novamente.")
+        }
+        finally{
+          setLoading(false)
         }
       }
 
@@ -60,6 +66,10 @@ export default function LoginScreen({navigation}) {
 
   const navigateToRegister = () => {
     navigation.navigate('Register')
+  }
+
+  if (loading) {
+    return <LoadingScreen loading={loading} />;
   }
 
   return (

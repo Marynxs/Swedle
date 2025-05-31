@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
-  ScrollView
+  ScrollView,
+  Alert,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
@@ -13,8 +14,21 @@ import GenericButton from '../components/GenericButton';
 import { auth } from '../firebaseConfig';
 import { useTheme } from '../hooks/useTheme';
 
+import { EmailAuthProvider, reauthenticateWithCredential, sendEmailVerification, updateEmail, updatePassword } from "firebase/auth";
+import LoadingScreen from '../components/LoadingScreen';
+
+
 export default function ConfigScreen() {
   const { colors, isDark, toggleTheme } = useTheme();
+  const [loading, setLoading] = useState(false);
+
+  const [errorCurrentPasswordEmail, setErrorCurrentPasswordEmail] = useState('');
+  const [errorEmail, setErrorEmail] = useState('')
+
+
+  const [errorCurrentPasswordPassword, setErrorCurrentPasswordPassword] = useState('');
+  const [errorPassword, setErrorPassword] = useState('')
+  
 
   function handleLogout() {
     auth
@@ -24,106 +38,116 @@ export default function ConfigScreen() {
       });
   }
 
-    async function handleChangeEmail(novoEmail) {
-    if (!novoEmail) {
-      Alert.alert('Erro', 'Digite o novo e-mail.');
-      return;
-    }
+async function reauthenticateUser(user, currentPassword) {
 
-    Alert.prompt(
-      'Confirmação de Segurança',
-      'Digite sua senha atual para confirmar a troca de e-mail:',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Confirmar',
-          onPress: async (senhaAtual) => {
-            try {
-              const user = authInstance.currentUser;
-              if (!user) throw new Error('Usuário não autenticado.');
+      if (!user) throw new Error('Usuário não autenticado.');
 
-              const credential = EmailAuthProvider.credential(
-                user.email,
-                senhaAtual
-              );
-              await reauthenticateWithCredential(user, credential);
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        currentPassword
+      );
 
-              await updateEmail(user, novoEmail);
-              Alert.alert('Sucesso', 'E-mail atualizado com sucesso!');
-            } catch (err) {
-              console.error(err);
-              let mensagem = 'Erro ao tentar alterar o e-mail.';
-              if (err.code === 'auth/wrong-password') {
-                mensagem = 'Senha incorreta. Tente novamente.';
-              } else if (err.code === 'auth/invalid-email') {
-                mensagem = 'Formato de e-mail inválido.';
-              } else if (err.code === 'auth/email-already-in-use') {
-                mensagem = 'Este e-mail já está em uso.';
-              }
-              Alert.alert('Falha', mensagem);
-            }
-          },
-        },
-      ],
-      'secure-text'
-    );
+      await reauthenticateWithCredential(user, credential);
+}
+
+async function handleChangeEmail(newEmail, currentPassword) {
+
+  setErrorEmail('')
+  setErrorCurrentPasswordEmail('')
+  
+  setLoading(true)
+
+  let error = false;
+
+  if (!newEmail) {
+    setErrorEmail('Você deve digitar o novo e-mail.');
+    error = true;
   }
 
-    async function handleChangePassword(novaSenha) {
-    if (!novaSenha) {
-      Alert.alert('Erro', 'Digite a nova senha.');
-      return;
+  if (!currentPassword) {
+    setErrorCurrentPasswordEmail('Você deve digitar sua senha atual.');
+    error = true;
+  }
+
+  if (error) {
+    return;
+  }
+
+  try {
+    const user = auth.currentUser;
+    await reauthenticateUser(user, currentPassword)
+
+    await updateEmail(user, newEmail);
+    Alert.alert('Sucesso', 'E-mail atualizado com sucesso!');
+  } catch (err) {
+    console.error(err);
+    let message = 'Erro ao tentar alterar o e-mail.';
+    if (err.code === 'auth/wrong-password') {
+      let messagePassword = 'Senha atual incorreta.';
+      setErrorCurrentPasswordEmail(messagePassword)
+    } 
+    if (err.code === 'auth/invalid-email') {
+      message = 'Formato de e-mail inválido.';
+    } else if (err.code === 'auth/email-already-in-use') {
+      message = 'Este e-mail já está em uso.';
+    } else if (err.code === 'auth/requires-recent-login') {
+      message = 'Sessão expirada. Faça login novamente.';
+    }
+    setErrorEmail(message)
+  }
+  finally{
+    setLoading(false)
+  }
+}
+
+  async function handleChangePassword(newPassword, currentPassword) {
+    setErrorPassword('');
+    setErrorCurrentPasswordPassword('');
+
+    setLoading(true)
+
+    let error = false
+
+    if (!newPassword) {
+      setErrorPassword('Você deve digitar sua nova senha.')
+      error = true
+    }
+    if (!currentPassword) {
+      setErrorCurrentPasswordPassword('Você deve digitar sua senha atual.')
+      error = true
     }
 
-    Alert.prompt(
-      'Confirmação de Segurança',
-      'Digite sua senha atual para confirmar a troca:',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Confirmar',
-          onPress: async (senhaAtual) => {
-            try {
-              const user = authInstance.currentUser;
-              if (!user) throw new Error('Usuário não autenticado.');
+    if (error) {
+      return
+    }
 
-              const credential = EmailAuthProvider.credential(
-                user.email,
-                senhaAtual
-              );
-              await reauthenticateWithCredential(user, credential);
+    try {
+      const user = auth.currentUser;
+      await reauthenticateUser(user, currentPassword)
 
-              if (novaSenha.length < 6) {
-                Alert.alert(
-                  'Erro',
-                  'A senha deve ter no mínimo 6 caracteres.'
-                );
-                return;
-              }
+      await updatePassword(user, newPassword);
+      Alert.alert('Sucesso', 'Senha atualizada com sucesso!');
+    } catch (err) {
+      console.error(err);
+      let message = 'Erro ao tentar alterar a senha.';
+      if (err.code === 'auth/wrong-password') {
+        let messagePassword = 'Senha atual incorreta.';
+        setErrorCurrentPasswordPassword(messagePassword)
+      } 
+      if (err.code === 'auth/weak-password') {
+        message = 'Senha muito fraca. Utilize no mínimo 6 caracteres.';
+      } else if (err.code === 'auth/requires-recent-login') {
+        message = 'Sessão expirada. Faça login novamente.';
+      }
+      setErrorPassword(message)
+    }
+    finally{
+      setLoading(false)
+    }
+  }
 
-              await updatePassword(user, novaSenha);
-              Alert.alert('Sucesso', 'Senha atualizada com sucesso!');
-            } catch (err) {
-              console.error(err);
-              let mensagem = 'Erro ao tentar alterar a senha.';
-              if (err.code === 'auth/wrong-password') {
-                mensagem = 'Senha atual incorreta.';
-              } else if (err.code === 'auth/weak-password') {
-                mensagem = 'Senha muito fraca. Use no mínimo 6 caracteres.';
-              }
-              Alert.alert('Falha', mensagem);
-            }
-          },
-        },
-      ],
-      'secure-text'
-    );
+  if (loading) {
+  return <LoadingScreen loading={loading} />;
   }
 
   return (
@@ -133,19 +157,27 @@ export default function ConfigScreen() {
         <HeaderClientConfig title="Configurações" />
       </View>
 
-      <View style={styles.cardsContainer}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.cardsContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <ConfigCard
           action="Trocar Email"
           placeHolderText="Digite o novo email"
-          onPress={handleChangeEmail}
+          onSubmit={(newEmail, currentPassword) => handleChangeEmail(newEmail, currentPassword)}
           icon={<Feather name="mail" size={20} color={colors.foreground} />}
+          errorAction={errorEmail}
+          errorCurrentPassword={errorCurrentPasswordEmail}
         />
 
         <ConfigCard
           action="Trocar Senha"
           placeHolderText="Digite a nova senha"
-          onPress={handleChangePassword}
+          onSubmit={(newPassword, currentPassword) => handleChangePassword(newPassword, currentPassword)}
           icon={<Feather name="lock" size={20} color={colors.foreground} />}
+          errorAction={errorPassword}
+          errorCurrentPassword={errorCurrentPasswordPassword}
         />
 
         <ConfigCard
@@ -153,7 +185,7 @@ export default function ConfigScreen() {
           isSwitch={true}
           switchValue={isDark}
           onToggleSwitch={toggleTheme}
-          icon={<Feather name="moon" size={20} color={colors.foreground} />}
+          icon={isDark ? <Feather name="moon" size={20} color={colors.foreground} /> : <Feather name="sun" size={20} color={colors.foreground} /> }
         />
 
         <View style={styles.buttonView}>
@@ -169,7 +201,7 @@ export default function ConfigScreen() {
             }}
             />
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -182,6 +214,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingHorizontal: 44,
     paddingTop: 90,
+  },
+  scrollView: {
+    flex: 1,
   },
   cardsContainer: {
     paddingHorizontal: 25, 
