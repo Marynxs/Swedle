@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import { useTheme } from '../hooks/useTheme';
+import { Ionicons } from '@expo/vector-icons';
+
 
 export default function TextField({
   value,
@@ -10,6 +13,7 @@ export default function TextField({
   placeholderTextColor = '#848484',
   lineStyle,
 }) {
+  const {colors} = useTheme()
   const [secure, setSecure] = useState(security);
 
   return (
@@ -18,9 +22,9 @@ export default function TextField({
         <TextInput
           value={value}
           onChangeText={onChangeText}
-          style={styles.input}
+          style={[styles.input, {color: colors.foreground}]}
           placeholder={placeholder}
-          placeholderTextColor= {placeholderTextColor}
+          placeholderTextColor= {colors.placeholder}
           keyboardType={keyboardType}
           secureTextEntry={secure}
         />
@@ -29,9 +33,9 @@ export default function TextField({
             onPress={() => setSecure((s) => !s)}
             style={styles.iconButton}
           >
-            <Image source={ secure ? require('../assets/Olho Fechado.png') : require('../assets/Olho Aberto.png') }
-            style={styles.iconButton}
-            />
+          {secure ? <Ionicons name="eye-off-outline" size={24} color={colors.foreground} /> 
+          : <Ionicons name="eye" size={24} color={colors.foreground} />
+          }
           </TouchableOpacity>
         )}
       </View>

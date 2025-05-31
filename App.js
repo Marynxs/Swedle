@@ -5,8 +5,12 @@ import {NavigationContainer} from '@react-navigation/native'
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
 import { ActivityIndicator,  TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
 import { useAuth } from './context/auth/useAuth'
 import { AuthProvider } from './context/auth/AuthProvider';
+
+import { ThemeProvider } from './context/theme/ThemeProvider';
+import { useTheme } from './hooks/useTheme';
 
 //Telas
 import RegisterScreen from './screens/RegisterScreen';
@@ -17,17 +21,23 @@ import ClientMeasuresScreen from './screens/ClientMeasuresScreen';
 //Navegações
 import Bottom_Tabs from './navigation/Bottom_Tabs';
 
+
 //,,
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </AuthProvider>
   );
 }
 
 function AppContent() {
   const { user, loaded } = useAuth();
+
+  const {colors} = useTheme()
+
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -45,7 +55,7 @@ function AppContent() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           <>
-            <Stack.Screen name="Clients" component={Bottom_Tabs} />
+            <Stack.Screen name="ClientsScreen" component={Bottom_Tabs} />
             <Stack.Screen name="Cadastro_Editar_Clientes" component={ClientInfoScreen} />
             <Stack.Screen name="Medidas_Clientes" component={ClientMeasuresScreen} />
           </>
@@ -57,11 +67,15 @@ function AppContent() {
               component={RegisterScreen}
               options={({ navigation }) => ({
                 headerShown: true,
+                headerStyle: {
+                  backgroundColor: colors.background,
+                },
+                headerTintColor: colors.foreground,
                 title: 'Voltar',
                 headerShadowVisible: false,
                 headerLeft: () => (
                   <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 5 }}>
-                    <Ionicons name="arrow-back" size={24} color="#000" />
+                    <Ionicons name="arrow-back" size={24} color={colors.foreground} />
                   </TouchableOpacity>
                 ),
               })}

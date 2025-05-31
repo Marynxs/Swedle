@@ -1,23 +1,26 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
+import { useTheme } from '../hooks/useTheme';
 
 //Telas
 import ConfigScreen from '../screens/ConfigScreen';
 import ClientScreen from '../screens/ClientScreen';
 
 export default function Bottom_Tabs(){
+    const { colors } = useTheme();
     const Tab = createBottomTabNavigator();
     return(
-        <Tab.Navigator initialRouteName='Clientes' 
+        <Tab.Navigator initialRouteName='Clients' 
             screenOptions={({ route }) => ({
                 headerShown: false,
-                tabBarActiveTintColor: '#323232',
-                tabBarInactiveTintColor: '#A6A6A6',
+                tabBarActiveTintColor: colors.tabBarIconActive,
+                tabBarInactiveTintColor: colors.tabBarIconInactive,
+                tabBarStyle: {backgroundColor: colors.background},
                 tabBarIcon: ({ color, size }) => {
                 let iconName;
         
-                if (route.name === 'Clientes') {
+                if (route.name === 'Clients') {
                     iconName = 'people'; 
                 } else if (route.name === 'Configurações') {
                     iconName = 'settings'; 
@@ -27,7 +30,7 @@ export default function Bottom_Tabs(){
                 }
             })}
         >
-            <Tab.Screen name="Clientes" component={ClientScreen}/>
+            <Tab.Screen name="Clients" component={ClientScreen}/>
             <Tab.Screen name="Configurações" component={ConfigScreen} />
         </Tab.Navigator>
     );

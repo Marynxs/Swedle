@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import LogoFull from '../components/Login&RegisterScreen/LogoFull';
 import TextField from '../components/TextField';
-import SignInSignUpButton from '../components/Login&RegisterScreen/SignInSignUpButton';
+import GenericButton from '../components/GenericButton';
 import RedirectText from '../components/Login&RegisterScreen/RedirectText';
 import ScreenView from '../components/Login&RegisterScreen/ScreenView';
 import ErrorText from '../components/Login&RegisterScreen/ErrorText';
@@ -47,9 +47,7 @@ export default function LoginScreen({navigation}) {
       }
       else {
         try {
-          const user = await signInWithEmailAndPassword(auth, email, password)
-          if (user)
-            navigation.replace('Clients')
+          await signInWithEmailAndPassword(auth, email, password)
         }
         catch (error) {
         console.log(error.code);
@@ -77,7 +75,7 @@ export default function LoginScreen({navigation}) {
 
           <RedirectText text="não possui uma conta?" link="Cadastre-se" onPress={navigateToRegister}/>
 
-          <SignInSignUpButton title="Entrar" onPress={handleLogin} />
+          <GenericButton title="Entrar" onPress={handleLogin} />
 
     </ScreenView>
 

@@ -2,7 +2,7 @@ import React, { use, useState } from 'react';
 
 import LogoFull from '../components/Login&RegisterScreen/LogoFull';
 import TextField from '../components/TextField';
-import SignInSignUpButton from '../components/Login&RegisterScreen/SignInSignUpButton';
+import GenericButton from '../components/GenericButton';
 import RedirectText from '../components/Login&RegisterScreen/RedirectText';
 import ErrorText from '../components/Login&RegisterScreen/ErrorText';
 import ScreenView from '../components/Login&RegisterScreen/ScreenView';
@@ -83,7 +83,7 @@ export default function RegisterScreen({ navigation }) {
       
       <RedirectText text="já possui uma conta?" link="Entrar" onPress={navigateToLogin} />
 
-      <SignInSignUpButton title="Criar Conta" onPress={handleRegister} />
+      <GenericButton title="Criar Conta" onPress={handleRegister} />
 
   </ScreenView>
   );

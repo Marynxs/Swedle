@@ -1,74 +1,196 @@
-import React, { useState } from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import HeaderClientConfig from '../components/Header/HeaderClient&Config';
-import ConfigCard from '../components/ConfigCard';
+import React from 'react';
+import {
+  View,
+  StyleSheet,
+  ScrollView
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-export default function ConfigScreen(){
-    const [isDarkTheme, setIsDarkTheme] = useState(false);
+import HeaderClientConfig from '../components/Header/HeaderClient&Config';
+import ConfigCard from '../components/ConfigCard';
+import GenericButton from '../components/GenericButton';
 
-    const toggleTheme = () => {
-        setIsDarkTheme(!isDarkTheme);
-        // aqui você pode adicionar lógica real de troca de tema
-    };
+import { auth } from '../firebaseConfig';
+import { useTheme } from '../hooks/useTheme';
 
-    return(
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <HeaderClientConfig title='Configurações'/>
-            </View>
-            <View style={styles.cards}>
-                <ConfigCard action='Trocar Email' onPress={() => {}}  icon={<Feather name="mail" size={20} color="#323232" />}/>
-                <ConfigCard action='Trocar Senha' onPress={() => {}}  icon={<Feather name="lock" size={20} color="#323232" />}/>
-                <ConfigCard
-                    action='Mudar Tema'
-                    isSwitch={true}
-                    switchValue={isDarkTheme}
-                    onToggleSwitch={toggleTheme}
-                    icon={<Feather name="moon" size={20} color="#323232" />}
-                />
-            </View>
-            <TouchableOpacity onPress={()=>{}} style={styles.button}>
-                <Text style={styles.text}>Sair da Conta</Text>
-            </TouchableOpacity>
-        </View>
+export default function ConfigScreen() {
+  const { colors, isDark, toggleTheme } = useTheme();
+
+  function handleLogout() {
+    auth
+      .signOut()
+      .catch((error) => {
+        console.error('Erro ao deslogar:', error);
+      });
+  }
+
+    async function handleChangeEmail(novoEmail) {
+    if (!novoEmail) {
+      Alert.alert('Erro', 'Digite o novo e-mail.');
+      return;
+    }
+
+    Alert.prompt(
+      'Confirmação de Segurança',
+      'Digite sua senha atual para confirmar a troca de e-mail:',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirmar',
+          onPress: async (senhaAtual) => {
+            try {
+              const user = authInstance.currentUser;
+              if (!user) throw new Error('Usuário não autenticado.');
+
+              const credential = EmailAuthProvider.credential(
+                user.email,
+                senhaAtual
+              );
+              await reauthenticateWithCredential(user, credential);
+
+              await updateEmail(user, novoEmail);
+              Alert.alert('Sucesso', 'E-mail atualizado com sucesso!');
+            } catch (err) {
+              console.error(err);
+              let mensagem = 'Erro ao tentar alterar o e-mail.';
+              if (err.code === 'auth/wrong-password') {
+                mensagem = 'Senha incorreta. Tente novamente.';
+              } else if (err.code === 'auth/invalid-email') {
+                mensagem = 'Formato de e-mail inválido.';
+              } else if (err.code === 'auth/email-already-in-use') {
+                mensagem = 'Este e-mail já está em uso.';
+              }
+              Alert.alert('Falha', mensagem);
+            }
+          },
+        },
+      ],
+      'secure-text'
     );
+  }
+
+    async function handleChangePassword(novaSenha) {
+    if (!novaSenha) {
+      Alert.alert('Erro', 'Digite a nova senha.');
+      return;
+    }
+
+    Alert.prompt(
+      'Confirmação de Segurança',
+      'Digite sua senha atual para confirmar a troca:',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Confirmar',
+          onPress: async (senhaAtual) => {
+            try {
+              const user = authInstance.currentUser;
+              if (!user) throw new Error('Usuário não autenticado.');
+
+              const credential = EmailAuthProvider.credential(
+                user.email,
+                senhaAtual
+              );
+              await reauthenticateWithCredential(user, credential);
+
+              if (novaSenha.length < 6) {
+                Alert.alert(
+                  'Erro',
+                  'A senha deve ter no mínimo 6 caracteres.'
+                );
+                return;
+              }
+
+              await updatePassword(user, novaSenha);
+              Alert.alert('Sucesso', 'Senha atualizada com sucesso!');
+            } catch (err) {
+              console.error(err);
+              let mensagem = 'Erro ao tentar alterar a senha.';
+              if (err.code === 'auth/wrong-password') {
+                mensagem = 'Senha atual incorreta.';
+              } else if (err.code === 'auth/weak-password') {
+                mensagem = 'Senha muito fraca. Use no mínimo 6 caracteres.';
+              }
+              Alert.alert('Falha', mensagem);
+            }
+          },
+        },
+      ],
+      'secure-text'
+    );
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+
+      <View style={styles.header}>
+        <HeaderClientConfig title="Configurações" />
+      </View>
+
+      <View style={styles.cardsContainer}>
+        <ConfigCard
+          action="Trocar Email"
+          placeHolderText="Digite o novo email"
+          onPress={handleChangeEmail}
+          icon={<Feather name="mail" size={20} color={colors.foreground} />}
+        />
+
+        <ConfigCard
+          action="Trocar Senha"
+          placeHolderText="Digite a nova senha"
+          onPress={handleChangePassword}
+          icon={<Feather name="lock" size={20} color={colors.foreground} />}
+        />
+
+        <ConfigCard
+          action="Mudar Tema"
+          isSwitch={true}
+          switchValue={isDark}
+          onToggleSwitch={toggleTheme}
+          icon={<Feather name="moon" size={20} color={colors.foreground} />}
+        />
+
+        <View style={styles.buttonView}>
+            <GenericButton
+            title="Sair da Conta"
+            onPress={handleLogout}
+            styleButton={{
+                width: '60%',
+                marginTop: 20,
+            }}
+            styleText={{
+                fontSize: 20,
+            }}
+            />
+        </View>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingTop: 33,
-        backgroundColor: '#ffffff',
-      },
-      header: {
-        flex: 0.1,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 35,
-        paddingRight: 44,
-        paddingLeft: 44,
-        paddingTop: 42
-      },
-      cards: {
-        marginHorizontal: 25,
-      },
-      button: {
-        width: '50%',
-        backgroundColor: '#F0BC20',
-        paddingVertical: 12,
-        paddingHorizontal: 5,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 20,
-        marginHorizontal: 85,
-     },
-     text: {
-        color: '#000',
-        fontSize: 20,
-        fontFamily: 'Inter_700Bold'
-     },
-})
+  container: {
+    flex: 1,              
+  },
+  header: { 
+    alignItems: 'flex-start',
+    paddingHorizontal: 44,
+    paddingTop: 90,
+  },
+  cardsContainer: {
+    paddingHorizontal: 25, 
+    paddingTop: 20,       
+    paddingBottom: 40,   
 
+  },
+  buttonView: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { useTheme } from '../../hooks/useTheme';
 
 export default function MeasureTextField({
   description,
@@ -9,14 +9,15 @@ export default function MeasureTextField({
   onChangeSizeCm,
   onDelete
 }) {
+  const {colors} = useTheme()
 
     return(
     <View style={styles.measureRow}>
         <View style={styles.measureNameWrapper}>
         <TextInput
             placeholder="Ex: Busto"
-            style={styles.measureNameInput}
-            placeholderTextColor="#838383"
+            style={[styles.measureNameInput , {color: colors.foreground}]}
+            placeholderTextColor={colors.placeholder}
             value={description}
             onChangeText={onChangeDescription}
         />
@@ -26,12 +27,12 @@ export default function MeasureTextField({
         <TextInput
             placeholder="00.0"
             keyboardType="numeric"
-            style={styles.measureValueInput}
-            placeholderTextColor="#838383"
+            style={[styles.measureValueInput, {color: colors.foreground}]}
+            placeholderTextColor={colors.placeholder}
             value={sizeCm}
             onChangeText={onChangeSizeCm}
         />
-        <Text style={styles.unit}>cm</Text>
+        <Text style={[styles.unit, {color: colors.placeholder}]}>cm</Text>
 
         <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
           <Ionicons

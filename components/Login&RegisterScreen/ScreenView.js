@@ -1,12 +1,15 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function ScreenView({ children }) {
+  const {colors} = useTheme()
+
   return (
     <KeyboardAwareScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={[styles.container , { backgroundColor: colors.background }]}
       enableOnAndroid
       extraScrollHeight={50}
       keyboardOpeningTime={0}
@@ -31,10 +34,8 @@ const styles = StyleSheet.create({
     width: '75%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
   },
   scrollView: {
     flex: 1,
-    backgroundColor: '#fff',   
   },
 });

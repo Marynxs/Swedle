@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View,Text, StyleSheet, TouchableOpacity} from 'react-native';
-
+import { useTheme } from '../../hooks/useTheme';
 
 import { Ionicons } from '@expo/vector-icons';
 import SaveOrMenu from './SaveOrMenu';
@@ -11,7 +11,7 @@ export default function Header({
   onSave,          
   menuItems = []   
 }) {
-
+  const {colors} = useTheme()
 
   return (
     <View style={styles.wrapper}>
@@ -20,11 +20,11 @@ export default function Header({
         style={styles.back}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Ionicons name="chevron-back" size={24} color="#323232" />
-        <Text style={styles.backText}>Voltar</Text>
+        <Ionicons name="chevron-back" size={24} color= {colors.foreground} />
+        <Text style={[styles.backText, {color: colors.foreground}]}>Voltar</Text>
       </TouchableOpacity>
 
-      <Text style={styles.title}>{headerTitle}</Text>
+      <Text style={[styles.title, {color: colors.foreground}]}>{headerTitle}</Text>
 
       <SaveOrMenu onSave={onSave} menuItems={menuItems}/>
     </View>

@@ -8,7 +8,9 @@ import { auth, db, storage } from '../firebaseConfig';
 import { collection, doc, getDocs, deleteDoc, getDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 
+import { useTheme } from '../hooks/useTheme';
 export default function ClientMeasuresScreen({ route, navigation }) {
+  const {colors} = useTheme()
   const { client } = route.params;
   const [medidas, setMedidas] = useState([]);
 
@@ -128,7 +130,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
 
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container , { backgroundColor: colors.background }]}>
       <Header
         navigation={navigation}
         headerTitle={client.nome}
@@ -138,7 +140,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
         ]}
       />
        
-      <Text style={styles.sectionTitle}>Medidas</Text>
+      <Text style={[styles.sectionTitle,{color: colors.foreground} ]}>Medidas</Text>
 
       <Measurements medidas={medidas}/>
     </View>

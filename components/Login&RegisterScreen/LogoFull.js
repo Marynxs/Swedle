@@ -1,15 +1,17 @@
 import React from 'react';
 import {Image, StyleSheet} from 'react-native';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function LogoFull() {
+    const {isDark} = useTheme()
     return (
     <>
         <Image
-        source={require('../../assets/Logo.png')}
+        source={isDark ? require('../../assets/LogoAmarelo.png') : require('../../assets/LogoPreto.png')}
         style={styles.Logo}
         />
         <Image
-        source={require('../../assets/Texto.png')}
+        source={isDark ? require('../../assets/TextoAmarelo.png') :require('../../assets/TextoPreto.png')}
         style={styles.Texto}
         />
     </>

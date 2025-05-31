@@ -2,14 +2,16 @@
 import React from 'react';
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function AddMeasureButton({ onPress }) {
+  const {colors} = useTheme()
   return (
-    <TouchableOpacity style={styles.addButton} onPress={onPress}>
-      <View style={styles.iconWrapper}>
-        <Feather name="plus" size={16} color="#ffffff" />
+    <TouchableOpacity style={[styles.addButton, {backgroundColor: colors.background}]} onPress={onPress}>
+      <View style={[styles.iconWrapper, {backgroundColor: colors.yellowTextDark}]}>
+        <Feather name="plus" size={16} color={colors.buttonPlus} />
       </View>
-      <Text style={styles.addButtonText}>Adicionar Medida</Text>
+      <Text style={[styles.addButtonText, {color: colors.yellowTextDark}]}>Adicionar Medida</Text>
     </TouchableOpacity>
   );
 }
@@ -20,7 +22,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     marginTop: 16,
-    backgroundColor: '#ffffff',
     paddingHorizontal: 6,
     paddingVertical: 6,
     borderRadius: 20
@@ -32,7 +33,6 @@ const styles = StyleSheet.create({
     marginRight: 6
   },
   iconWrapper: {
-    backgroundColor: '#323232',
     width: 24,
     height: 24,
     borderRadius: 12,

@@ -15,9 +15,13 @@ import { db, auth, storage } from '../firebaseConfig';
 import { doc, collection, writeBatch, getDocs, getDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 
+import { useTheme } from '../hooks/useTheme';
+
 
 
 export default function ClientInfoScreen({ navigation, route }) {
+  const { colors } = useTheme()
+
   const editingClient = route.params?.client;      // undefined se criação
   const clientId      = editingClient?.id;
   const headerTitle = route.params.headerTitle;
@@ -304,7 +308,7 @@ export default function ClientInfoScreen({ navigation, route }) {
   };
   
   return (
-    <View style={styles.container}>
+    <View style={[styles.container , { backgroundColor: colors.background }]}>
       <KeyboardAwareScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContainer}
@@ -314,8 +318,8 @@ export default function ClientInfoScreen({ navigation, route }) {
       >
         <Header headerTitle={headerTitle} navigation={navigation} onSave={handleSave}/>
 
-        <Text style={styles.sectionTitle}>Informações do Cliente</Text>
-        <View style={styles.formContainer}>
+        <Text style={[styles.sectionTitle, {color: colors.foreground}]}>Informações do Cliente</Text>
+        <View style={[styles.formContainer, {backgroundColor: colors.clientContainer}]}>
 
           <ChoosePictureButton onPress={pickImage} uri={photoUri}/>
 
@@ -349,7 +353,7 @@ export default function ClientInfoScreen({ navigation, route }) {
             <ErrorText error={phoneError}/>
           </View>
 
-          <Text style={styles.sectionSubtitle}>Medidas do Cliente</Text>
+          <Text style={[styles.sectionSubtitle, {color: colors.yellowTextDark}]}>Medidas do Cliente</Text>
           
           {measures.map((measurement, index) => (
             <MeasureTextField
@@ -372,7 +376,6 @@ export default function ClientInfoScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     paddingTop: 20,          
     paddingRight: 12
   },
@@ -381,10 +384,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 12,
     fontFamily: 'Inter_500Medium',
-    color: "#323232"
   },
   formContainer: {
-    backgroundColor: '#E7E7E7',
     borderRadius: 16,
     padding: 20,
     paddingBottom: 35
@@ -392,7 +393,6 @@ const styles = StyleSheet.create({
   sectionSubtitle: {
     marginTop: 8,
     marginBottom: 8,
-    color: '#838383',
     fontWeight: '500',
     textAlign: 'center',
     fontFamily: 'Inter_500Medium',

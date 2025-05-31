@@ -7,9 +7,11 @@ import HeaderClientConfig from "../components/Header/HeaderClient&Config";
 
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
+import { useTheme } from "../hooks/useTheme";
 
 
 export default function ClientScreen({navigation}) {
+  const {colors} = useTheme()
 
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -61,7 +63,7 @@ export default function ClientScreen({navigation}) {
 
   if (loading) {
     return (
-      <View style={styles.containerCentered}>
+      <View style={[styles.containerCentered, {backgroundColor: colors.background}]}>
         <ActivityIndicator size="large" />
       </View>
     );
@@ -90,7 +92,7 @@ export default function ClientScreen({navigation}) {
 
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container , { backgroundColor: colors.background }]}>
             <FlatList style={styles.lista}
                 data={clients}
                 keyExtractor={(item) => item.id}
@@ -107,7 +109,7 @@ export default function ClientScreen({navigation}) {
                   <View style={styles.header}>
                     <HeaderClientConfig title="Clientes"/>
                     <TouchableOpacity onPress={() => navigation.navigate('Cadastro_Editar_Clientes', { headerTitle: 'Criar Cliente'})}>
-                      <Feather name="plus" size={28} color="#323232" />
+                      <Feather name="plus" size={28} color={colors.foreground} />
                     </TouchableOpacity>
                   </View>
                 }
@@ -120,7 +122,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
-    backgroundColor: '#ffffff',
   },
   containerCentered: { 
     flex: 1, 

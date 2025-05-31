@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Image, Modal} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
+import { useTheme } from '../../hooks/useTheme';
 
 export default function SaveOrMenu({
   onSave,          
   menuItems = []
 }){
 
+  const {colors} = useTheme()
   const [menuVisible, setMenuVisible] = useState(false); 
 
   const toggleMenu = () => setMenuVisible(v => !v);         
@@ -18,10 +19,7 @@ export default function SaveOrMenu({
         {menuItems.length > 0 ? (
           <>
             <TouchableOpacity onPress={toggleMenu}>
-              <Image
-                source={require('../../assets/bolinhas.png')}
-                style={styles.menuIcon}
-              />
+              <Ionicons name="ellipsis-horizontal-circle-outline" size={30} style={[styles.menuItem, {color: colors.foreground}]} />
             </TouchableOpacity>
 
             <Modal
@@ -37,7 +35,7 @@ export default function SaveOrMenu({
             )}
 
             {menuVisible && (
-              <View style={styles.menu}>
+              <View style={[styles.menu, {backgroundColor:colors.menuButton}]}>
                 {menuItems.map((item, i) => (
                   <View key={i}>
                     <TouchableOpacity
@@ -47,9 +45,9 @@ export default function SaveOrMenu({
                         item.onPress();
                       }}>
 
-                      <Text style={[ styles.menuText, item.color ? { color: item.color } : null ]}> {item.label} </Text>
+                      <Text style={[ styles.menuText, item.color ? { color: item.color } : {color: colors.foreground} ]}> {item.label} </Text>
 
-                      <Ionicons name={item.iconName} size={18} color={item.color || '#323232'} />
+                      <Ionicons name={item.iconName} size={18} color={item.color || colors.foreground} />
                       
                     </TouchableOpacity>
 
@@ -62,7 +60,7 @@ export default function SaveOrMenu({
           </>
         ) : (
           <TouchableOpacity onPress={onSave}>
-            <Text style={styles.saveText}>Salvar</Text>
+            <Text style={[styles.saveText, {color: colors.foreground}]}>Salvar</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -89,7 +87,6 @@ const styles = StyleSheet.create({
   menuIcon: {
     width: 35,
     height: 35,
-    marginRight: 0,
   },
   menuItem: {
     flexDirection: 'row',
