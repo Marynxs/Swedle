@@ -15,6 +15,8 @@ export default function ClientMeasuresScreen({ route, navigation }) {
   const { client } = route.params;
   const [medidas, setMedidas] = useState([]);
   const [loading,setLoading] = useState(false)
+  const [clientData, setClientData] = useState(client);
+
 
   useFocusEffect(
     useCallback(() => {
@@ -25,6 +27,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
           setLoading(true)
           const user = auth.currentUser;
           if (!user) throw new Error('Usuário não autenticado');
+
 
           // 1) Recarrega o documento do client
           const clientRef = doc(
@@ -37,7 +40,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
           const clientSnap = await getDoc(clientRef);
           if (!clientSnap.exists()) throw new Error('Cliente não encontrado');
 
-          const clientData = clientSnap.data();
+          setClientData( clientSnap.data());
 
           // 2) Busca todas as medidas
           const measuresCol = collection(
@@ -79,7 +82,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
     const handleDelete = () => {
     Alert.alert(
       'Confirmar exclusão',
-      `Deseja apagar o client ${client.nome}?`,
+      `Deseja apagar o cliente ${clientData.name}?`,
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Apagar', style: 'destructive', onPress: deleteClient }
@@ -146,7 +149,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
     <View style={[styles.container , { backgroundColor: colors.background }]}>
       <Header
         navigation={navigation}
-        headerTitle={client.nome}
+        headerTitle={clientData.name}
         menuItems={[
           { label: 'Editar', iconName: 'pencil-outline', onPress: () => navigation.navigate('Cadastro_Editar_Clientes', { headerTitle: 'Editar cliente', client: client}) },
           { label: 'Apagar', iconName: 'trash-outline', color: '#BE1515', onPress: handleDelete },
