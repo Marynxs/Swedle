@@ -7,12 +7,14 @@ import Measurements from '../components/Measurements';
 import { auth, db, storage } from '../firebaseConfig';
 import { collection, doc, getDocs, deleteDoc, getDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
+import LoadingScreen from '../components/LoadingScreen';
 
 import { useTheme } from '../hooks/useTheme';
 export default function ClientMeasuresScreen({ route, navigation }) {
   const {colors} = useTheme()
   const { client } = route.params;
   const [medidas, setMedidas] = useState([]);
+  const [loading,setLoading] = useState(false)
 
   useFocusEffect(
     useCallback(() => {
@@ -20,6 +22,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
 
       const fetchMeasurements = async () => {
         try {
+          setLoading(true)
           const user = auth.currentUser;
           if (!user) throw new Error('Usuário não autenticado');
 
@@ -59,6 +62,9 @@ export default function ClientMeasuresScreen({ route, navigation }) {
           console.error(error);
           Alert.alert('Erro ao carregar medidas', error.message);
         }
+        finally{
+          setLoading(false)
+        }
       };
 
       fetchMeasurements();
@@ -83,6 +89,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
 
   const deleteClient = async () => {
     try {
+      setLoading(true)
       const user = auth.currentUser;
       if (!user) throw new Error('Usuário não autenticado');
 
@@ -120,14 +127,20 @@ export default function ClientMeasuresScreen({ route, navigation }) {
       await deleteDoc(clientRef);
 
       // 4) Feedback e volta
-      Alert.alert('Sucesso', 'client apagado.');
+      Alert.alert('Sucesso', 'Cliente apagado.');
       navigation.goBack();
     } catch (error) {
       console.error('Erro ao apagar client:', error);
       Alert.alert('Erro', error.message);
     }
+    finally{
+      setLoading(false)
+    }
   };
 
+  if (loading) {
+    return <LoadingScreen loading={loading} />;
+  }
 
   return (
     <View style={[styles.container , { backgroundColor: colors.background }]}>

@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../../hooks/useTheme';
+import ErrorText from '../Login&RegisterScreen/ErrorText';
 
 export default function MeasureTextField({
   description,
@@ -10,6 +11,19 @@ export default function MeasureTextField({
   onDelete
 }) {
   const {colors} = useTheme()
+
+  const handleSizeText = (text) => {
+
+  const onlyDigits = /^[0-9.]*$/.test(text);
+  if (!onlyDigits) return;
+
+  const pointsCounter = (text.match(/\./g) || []).length;
+  if (pointsCounter > 1) return;
+
+  if (text.length > 5) return;
+
+  onChangeSizeCm(text);
+};
 
     return(
     <View style={styles.measureRow}>
@@ -30,7 +44,8 @@ export default function MeasureTextField({
             style={[styles.measureValueInput, {color: colors.foreground}]}
             placeholderTextColor={colors.placeholder}
             value={sizeCm}
-            onChangeText={onChangeSizeCm}
+            maxLength={5}
+            onChangeText={handleSizeText}
         />
         <Text style={[styles.unit, {color: colors.placeholder}]}>cm</Text>
 

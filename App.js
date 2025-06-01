@@ -3,8 +3,9 @@ import 'react-native-url-polyfill/auto';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {NavigationContainer} from '@react-navigation/native'
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
-import { ActivityIndicator,  TouchableOpacity } from 'react-native';
+import { ActivityIndicator,  TouchableOpacity, Platform  } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 
 import { useAuth } from './context/auth/useAuth'
 import { AuthProvider } from './context/auth/AuthProvider';
@@ -20,6 +21,8 @@ import ClientMeasuresScreen from './screens/ClientMeasuresScreen';
 
 //Navegações
 import Bottom_Tabs from './navigation/Bottom_Tabs';
+import SplashScreen from './components/SplashScreen';
+
 
 
 //,,
@@ -35,6 +38,7 @@ export default function App() {
 
 function AppContent() {
   const { user, loaded } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
 
   const {colors} = useTheme()
 
@@ -49,6 +53,15 @@ function AppContent() {
   }
 
   const Stack = createNativeStackNavigator();
+
+  if (showSplash && Platform.OS !== "web") {
+    return (
+      <SplashScreen
+        source={require('./assets/SplashScreen.mp4')}
+        onVideoEnd={() => setShowSplash(false)}
+      />
+    );
+  }
 
   return (
     <NavigationContainer>

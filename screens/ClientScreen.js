@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback} from "react";
-import { Text, StyleSheet, View, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import { Text, StyleSheet, View, TouchableOpacity, FlatList} from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons'; 
 import ClientCard from "../components/ClientCard";
@@ -103,6 +103,7 @@ export default function ClientScreen({navigation}) {
                     />
                 )}
                 showsVerticalScrollIndicator={true}
+                contentContainerStyle={{ flexGrow: 1 }}
                 ListHeaderComponent={
                   <View style={styles.header}>
                     <HeaderClientConfig title="Clientes"/>
@@ -111,6 +112,13 @@ export default function ClientScreen({navigation}) {
                     </TouchableOpacity>
                   </View>
                 }
+                ListEmptyComponent={() => (
+                  <View style={styles.emptyContainer}>
+                    <Text style={[styles.emptyText, { color: colors.foreground }]}>
+                      Ainda não há clientes cadastrados.{'\n'} Toque no “+” para adicionar o primeiro.
+                    </Text>
+                  </View>
+                )}
             />
         </View>
     );
@@ -138,5 +146,16 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     paddingLeft: 15,
     fontFamily: 'Inter_400Regular'
-  }
+  },
+    emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: 'center',
+    alignSelf:'center',
+    lineHeight: 24,
+  },
 });

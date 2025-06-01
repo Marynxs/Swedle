@@ -79,39 +79,47 @@ export default function ClientInfoScreen({ navigation, route }) {
     }
   };
 
-  // Função para validar email
-  const validateEmail = (emailValue) => {
-    if (!emailValue.trim()) {
-      setEmailError('Email é obrigatório');
-      return false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
-      setEmailError('Email deve ter um formato válido');
-      return false;
-    } else {
-      setEmailError('');
-      return true;
-    }
-  };
+// Função para validar email (agora opcional)
+const validateEmail = (emailValue) => {
+  // Se estiver vazio, aceita sem erro
+  if (!emailValue.trim()) {
+    setEmailError('');
+    return true;
+  }
 
-  // Função para validar telefone
-  const validatePhone = (phoneValue) => {
-    // Remove caracteres não numéricos para validação
-    const numbers = phoneValue.replace(/\D/g, '');
-    
-    if (!phoneValue.trim()) {
-      setPhoneError('Telefone é obrigatório');
-      return false;
-    } else if (numbers.length < 10) {
-      setPhoneError('Telefone deve ter pelo menos 10 dígitos');
-      return false;
-    } else if (numbers.length > 11) {
-      setPhoneError('Telefone deve ter no máximo 11 dígitos');
-      return false;
-    } else {
-      setPhoneError('');
-      return true;
-    }
-  };
+  // Se digitou algo, aplica a regex normalmente
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+    setEmailError('Email deve ter um formato válido');
+    return false;
+  } else {
+    setEmailError('');
+    return true;
+  }
+};
+
+// Função para validar telefone (agora opcional)
+const validatePhone = (phoneValue) => {
+  // Remove caracteres não numéricos para checar o tamanho
+  const numbers = phoneValue.replace(/\D/g, '');
+
+  // Se estiver vazio, aceita sem erro
+  if (!phoneValue.trim()) {
+    setPhoneError('');
+    return true;
+  }
+
+  // Se digitou algo, precisa ter entre 10 e 11 dígitos
+  if (numbers.length < 10) {
+    setPhoneError('Telefone deve ter pelo menos 10 dígitos');
+    return false;
+  } else if (numbers.length > 11) {
+    setPhoneError('Telefone deve ter no máximo 11 dígitos');
+    return false;
+  } else {
+    setPhoneError('');
+    return true;
+  }
+};
 
   // Handler para mudança do nome
   const handleNameChange = (value) => {

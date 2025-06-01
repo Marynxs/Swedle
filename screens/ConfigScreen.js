@@ -4,6 +4,8 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
@@ -14,7 +16,7 @@ import GenericButton from '../components/GenericButton';
 import { auth } from '../firebaseConfig';
 import { useTheme } from '../hooks/useTheme';
 
-import { EmailAuthProvider, reauthenticateWithCredential, sendEmailVerification, updateEmail, updatePassword } from "firebase/auth";
+import { EmailAuthProvider, reauthenticateWithCredential, updateEmail, updatePassword } from "firebase/auth";
 import LoadingScreen from '../components/LoadingScreen';
 
 
@@ -151,7 +153,11 @@ async function handleChangeEmail(newEmail, currentPassword) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <KeyboardAvoidingView
+       style={[styles.container, { backgroundColor: colors.background }]}
+       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+       keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} 
+     >
 
       <View style={styles.header}>
         <HeaderClientConfig title="Configurações" />
@@ -202,7 +208,7 @@ async function handleChangeEmail(newEmail, currentPassword) {
             />
         </View>
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

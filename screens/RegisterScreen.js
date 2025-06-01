@@ -1,4 +1,4 @@
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 
 import LogoFull from '../components/Login&RegisterScreen/LogoFull';
 import TextField from '../components/TextField';
@@ -26,7 +26,6 @@ export default function RegisterScreen({ navigation }) {
       try{
         setLoading(true)
         await createUserWithEmailAndPassword(auth, email, password)
-        await signInWithEmailAndPassword(auth, email, password)
       }
       catch (error) {
         console.log(error)
