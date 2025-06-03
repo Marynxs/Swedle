@@ -1,6 +1,6 @@
 import React from 'react';
 import {Image, StyleSheet} from 'react-native';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../context/hooks/useTheme';
 
 export default function LogoFull() {
     const {isDark} = useTheme()

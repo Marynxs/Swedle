@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../context/hooks/useTheme';
 
 export default function ScreenView({ children }) {
   const {colors} = useTheme()

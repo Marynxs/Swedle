@@ -1,145 +1,75 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, StyleSheet, Alert} from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
+// Componentes personalizados
 import TextField from '../components/TextField';
 import MeasureTextField from '../components/ClientInfoScreen/MeasureTextField';
-import AddMeasureButton from '../components/ClientInfoScreen/AddMeasureButton'
+import AddMeasureButton from '../components/ClientInfoScreen/AddMeasureButton';
 import ChoosePictureButton from '../components/ClientInfoScreen/ChoosePictureButton';
-import Header from '../components/Header/Header'
+import Header from '../components/Header/Header';
 import ErrorText from '../components/Login&RegisterScreen/ErrorText';
 
+// Seleção de imagens
 import * as ImagePicker from 'expo-image-picker';
 
+// Firebase
 import { db, auth, storage } from '../firebaseConfig';
 import { doc, collection, writeBatch, getDocs, getDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
-import { useTheme } from '../hooks/useTheme';
+// Tema escuro/claro
+import { useTheme } from '../context/hooks/useTheme';
 
+// Tela de carregamento
 import LoadingScreen from '../components/LoadingScreen';
 
+// Validações de campos
+import { validateName, validatePhoneOptional, validateEmailOptional } from '../utils/Validator';
 
-
+// Componente principal (Acontece muita coisa)
+// Essa tela é tanto para criar quanto editar um cliente
 export default function ClientInfoScreen({ navigation, route }) {
-  const { colors } = useTheme()
-  const [loading, setLoading] = useState(false)
+  const { colors } = useTheme();
+  const [loading, setLoading] = useState(false);
 
-  const editingClient = route.params?.client;      // undefined se criação
-  const clientId      = editingClient?.id;
+  // Dados do cliente (para edição)
+  const editingClient = route.params?.client;
+  const clientId = editingClient?.id;
   const headerTitle = route.params.headerTitle;
 
+  // Estados para campos do formulário
   const [measures, setMeasures] = useState([{ description: '', sizeCm: '' }]);
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [photoUri, setPhotoUri] = useState(null);
   const [originalMeasureIds, setOriginalMeasureIds] = useState([]);
 
-  // Estados para controle de erros de validação
+  // Erros para validação
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
 
-  // Função para aplicar máscara de telefone
-  const applyPhoneMask = (value) => {
-    // Remove todos os caracteres não numéricos
-    const numbers = value.replace(/\D/g, '');
-    
-    // Limita a 11 dígitos (2 para DDD + 9 para número)
-    const limitedNumbers = numbers.slice(0, 11);
-    
-    if (limitedNumbers.length <= 2) {
-      return limitedNumbers;
-    } else if (limitedNumbers.length <= 6) {
-      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2)}`;
-    } else if (limitedNumbers.length <= 10) {
-      // Formato (DD)nnnn-nnnn para números com 8 dígitos
-      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2, 6)}-${limitedNumbers.slice(6)}`;
-    } else {
-      // Formato (DD)nnnnn-nnnn para números com 9 dígitos
-      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2, 7)}-${limitedNumbers.slice(7)}`;
-    }
-  };
-
-  // Função para validar nome
-  const validateName = (nameValue) => {
-    if (!nameValue.trim()) {
-      setNameError('Nome é obrigatório');
-      return false;
-    } else if (nameValue.trim().length < 2) {
-      setNameError('Nome deve ter pelo menos 2 caracteres');
-      return false;
-    } else if (!/^[a-zA-ZàáâãäéêëíîïóôõöúûüçÀÁÂÃÄÉÊËÍÎÏÓÔÕÖÚÛÜÇ\s]+$/.test(nameValue)) {
-      setNameError('Nome deve conter apenas letras e espaços');
-      return false;
-    } else {
-      setNameError('');
-      return true;
-    }
-  };
-
-// Função para validar email (agora opcional)
-const validateEmail = (emailValue) => {
-  // Se estiver vazio, aceita sem erro
-  if (!emailValue.trim()) {
-    setEmailError('');
-    return true;
-  }
-
-  // Se digitou algo, aplica a regex normalmente
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
-    setEmailError('Email deve ter um formato válido');
-    return false;
-  } else {
-    setEmailError('');
-    return true;
-  }
-};
-
-// Função para validar telefone (agora opcional)
-const validatePhone = (phoneValue) => {
-  // Remove caracteres não numéricos para checar o tamanho
-  const numbers = phoneValue.replace(/\D/g, '');
-
-  // Se estiver vazio, aceita sem erro
-  if (!phoneValue.trim()) {
-    setPhoneError('');
-    return true;
-  }
-
-  // Se digitou algo, precisa ter entre 10 e 11 dígitos
-  if (numbers.length < 10) {
-    setPhoneError('Telefone deve ter pelo menos 10 dígitos');
-    return false;
-  } else if (numbers.length > 11) {
-    setPhoneError('Telefone deve ter no máximo 11 dígitos');
-    return false;
-  } else {
-    setPhoneError('');
-    return true;
-  }
-};
-
-  // Handler para mudança do nome
+  // Funções para alterar os campos com validação em tempo real
   const handleNameChange = (value) => {
     setName(value);
-    validateName(value);
+    validateName(value, setNameError);
   };
 
-  // Handler para mudança do email
   const handleEmailChange = (value) => {
     setEmail(value);
-    validateEmail(value);
+    validateEmailOptional(value, setEmailError);
   };
 
-  // Handler para mudança do telefone
   const handlePhoneChange = (value) => {
     const maskedPhone = applyPhoneMask(value);
     setPhone(maskedPhone);
-    validatePhone(maskedPhone);
+    validatePhoneOptional(maskedPhone, setPhoneError);
   };
 
+  // Carrega os dados do cliente e medidas se estiver editando
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
@@ -150,36 +80,28 @@ const validatePhone = (phoneValue) => {
           const user = auth.currentUser;
           if (!user) return;
 
-          // 1) busca dados do cliente
+          // Carrega dados do cliente
           const docRef = doc(db, 'users', user.uid, 'clients', clientId);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists() && isActive) {
             const data = docSnap.data();
             setName(data.name || '');
             setEmail(data.email || '');
-            // Aplicar máscara ao telefone carregado
             setPhone(applyPhoneMask(data.phone || ''));
             setPhotoUri(data.photoURL || null);
           }
 
-          // 2) busca medidas
-          const measuresCol = collection(
-            db,
-            'users',
-            user.uid,
-            'clients',
-            clientId,
-            'measurements'
-          );
+          // Carrega medidas
+          const measuresCol = collection(db, 'users', user.uid, 'clients', clientId, 'measurements');
           const measuresSnap = await getDocs(measuresCol);
           if (isActive) {
-            const loaded = measuresSnap.docs.map(m => ({
-              id: m.id,
-              description: m.data().description,
-              sizeCm: String(m.data().sizeCm),
+            const loaded = measuresSnap.docs.map(measure => ({
+              id: measure.id,
+              description: measure.data().description,
+              sizeCm: String(measure.data().sizeCm),
             }));
             setMeasures(loaded);
-            setOriginalMeasureIds(loaded.map(m => m.id));
+            setOriginalMeasureIds(loaded.map(measure => measure.id));
           }
         } catch (err) {
           console.error('Erro ao carregar cliente:', err);
@@ -187,12 +109,11 @@ const validatePhone = (phoneValue) => {
       };
 
       fetchData();
-      return () => {
-        isActive = false;
-      };
+      return () => { isActive = false };
     }, [clientId])
   );
 
+  // Solicita permissão para acessar a galeria
   useEffect(() => {
     (async () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -202,11 +123,12 @@ const validatePhone = (phoneValue) => {
     })();
   }, []);
 
+  // Seleciona imagem da galeria
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: 'images',
       allowsEditing: false,
-      aspect: [4, 1],   
+      aspect: [4, 1],
       quality: 0.7,
     });
     if (!result.canceled) {
@@ -214,10 +136,15 @@ const validatePhone = (phoneValue) => {
     }
   };
 
+  // Adiciona nova medida
+  // Passa por todas as medidas e adiciona mais uma
   const createAddMeasure = () => {
-    setMeasures(prev => [...prev,{ description: '', sizeCm: '' }]);
+    setMeasures(prev => [...prev, { description: '', sizeCm: '' }]);
   };
 
+  // Atualiza um campo específico (description ou sizeCm) de uma medida no array,
+  // criando uma cópia do estado para manter a imutabilidade, pois o React só detecta
+  // mudanças se a referência do estado for alterada.
   const updateMeasure = (index, field, value) => {
     setMeasures(prev => {
       const copy = [...prev];
@@ -226,82 +153,72 @@ const validatePhone = (phoneValue) => {
     });
   };
 
-  const removeMeasure = index =>
-    setMeasures(prev => prev.filter((_, i) => i !== index));
+  // Remove a medida no índice especificado, criando um novo array sem esse item
+  const removeMeasure = index => setMeasures(prev => prev.filter((_, i) => i !== index));
 
+  // Salva cliente e medidas
   const handleSave = async () => {
-    setLoading(true)
-    try{
-      // Validar todos os campos antes de salvar
-      const isNameValid = validateName(name);
-      const isEmailValid = validateEmail(email);
-      const isPhoneValid = validatePhone(phone);
-
-      // Se algum campo for inválido, não prosseguir
-      if (!isNameValid || !isEmailValid || !isPhoneValid) {
-        return;
-      }
+    setLoading(true);
+    try {
+      // Validação dos campos
+      const isNameValid = validateName(name, setNameError);
+      const isEmailValid = validateEmailOptional(email, setEmailError);
+      const isPhoneValid = validatePhoneOptional(phone, setPhoneError);
+      if (!isNameValid || !isEmailValid || !isPhoneValid) return;
 
       const user = auth.currentUser;
       if (!user) throw new Error("Usuário não autenticado");
 
-      const clientsCol= collection(db, 'users', user.uid, 'clients');
+      const clientsCol = collection(db, 'users', user.uid, 'clients');
       const clientRef = editingClient ? doc(db, 'users', user.uid, 'clients', editingClient.id) : doc(clientsCol);
       const clientId = clientRef.id;
 
       let photoURL = editingClient?.imagemUrl || null;
+
+      // Se mudou a imagem, faz upload para o Firebase
       if (photoUri && photoUri !== editingClient?.imagemUrl) {
-        // se for edição e já existia uma foto, apaga primeiro
         if (editingClient?.imagemUrl) {
-          const oldRef = ref(
-            storage,
-            `users/${user.uid}/clients/${clientId}/photo.jpg`
-          );
+          const oldRef = ref(storage, `users/${user.uid}/clients/${clientId}/photo.jpg`);
           await deleteObject(oldRef).catch(() => {});
         }
-        // upload
         const response = await fetch(photoUri);
         const blob = await response.blob();
-        const imageRef = ref(
-          storage,
-          `users/${user.uid}/clients/${clientId}/photo.jpg`
-        );
+        const imageRef = ref(storage, `users/${user.uid}/clients/${clientId}/photo.jpg`);
         await uploadBytes(imageRef, blob, { contentType: 'image/jpeg' });
         photoURL = await getDownloadURL(imageRef);
       }
 
       const batch = writeBatch(db);
+      const phoneNumbers = phone.replace(/\D/g, '');// Armazena o telefone sem máscara (apenas os dígitos), como é recomendado
 
-      // Salvar telefone sem máscara no banco de dados
-      const phoneNumbers = phone.replace(/\D/g, '');
 
-      batch.set(
-        clientRef,
-        { 
-          name: name.trim(), 
-          email: email.trim().toLowerCase(), 
-          phone: phoneNumbers, 
-          ...(photoURL && { photoURL }) 
-        },
-        { merge: true }
-      );
+      // Salva dados do cliente usando batch que é uma especie de compilado de dados para serem mandados de uma vez
+      batch.set(clientRef, {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phoneNumbers,
+        ...(photoURL && { photoURL })
+      }, { merge: true });
+
+      // Lida com medidas
+      // - Atualiza medidas existentes (com id)
+      // - Cria novas medidas (sem id)
+      // - Remove medidas que foram deletadas pelo usuário
 
       const measuresCol = collection(db, 'users', user.uid, 'clients', clientId, 'measurements');
-      const currentIds = measures.map(m => m.id).filter(id => id);
+      const currentIds = measures.map(m => m.id).filter(Boolean);
       const idsToDelete = originalMeasureIds.filter(id => !currentIds.includes(id));
 
-      // set/update das medidas existentes e criação das novas
       measures.forEach(m => {
-        if (m.id) {
-          const mRef = doc(measuresCol, m.id);
-          batch.set(mRef, { description: m.description, sizeCm: Number(m.sizeCm) }, { merge: true });
-        } else {
-          const mRef = doc(measuresCol);
-          batch.set(mRef, { description: m.description, sizeCm: Number(m.sizeCm) });
-        }
+        const mRef = m.id ? doc(measuresCol, m.id) : doc(measuresCol);
+        batch.set(mRef, {
+          description: m.description,
+          sizeCm: Number(m.sizeCm)
+          // Se a medida já existe (tem id), atualiza só os campos informados mantendo o resto (merge: true)
+          // Se for nova (sem id), cria um documento do zero (merge: false)
+        }, { merge: m.id ? true : false });
       });
 
-      // delete das medidas removidas
       idsToDelete.forEach(id => {
         const mRef = doc(measuresCol, id);
         batch.delete(mRef);
@@ -310,24 +227,22 @@ const validatePhone = (phoneValue) => {
       await batch.commit();
       Alert.alert('Sucesso', 'Cliente e medidas salvos!');
       navigation.goBack();
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Código:', error.code);
       console.error('Mensagem:', error.message);
       console.error('Resposta do servidor:', error.customData?.serverResponse);
       Alert.alert('Erro', error.message);
-    }
-    finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
-  
+
   if (loading) {
     return <LoadingScreen loading={loading} />;
   }
 
   return (
-    <View style={[styles.container , { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAwareScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContainer}
@@ -335,62 +250,48 @@ const validatePhone = (phoneValue) => {
         enableOnAndroid={true}
         extraScrollHeight={250}
       >
-        <Header headerTitle={headerTitle} navigation={navigation} onSave={handleSave}/>
+        <Header headerTitle={headerTitle} navigation={navigation} onSave={handleSave} />
 
-        <Text style={[styles.sectionTitle, {color: colors.foreground}]}>Informações do Cliente</Text>
-        <View style={[styles.formContainer, {backgroundColor: colors.clientContainer}]}>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>Informações do Cliente</Text>
 
-          <ChoosePictureButton onPress={pickImage} uri={photoUri}/>
+        <View style={[styles.formContainer, { backgroundColor: colors.clientContainer }]}>
+          <ChoosePictureButton onPress={pickImage} uri={photoUri} />
 
           <View>
-            <TextField 
-              placeholder="Nome" 
-              value={name} 
-              onChangeText={handleNameChange}
-            />
-            <ErrorText error={nameError}/>
+            <TextField placeholder="Nome" value={name} onChangeText={handleNameChange} />
+            <ErrorText error={nameError} />
           </View>
 
           <View>
-            <TextField 
-              placeholder="Email" 
-              value={email} 
-              onChangeText={handleEmailChange} 
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            <ErrorText error={emailError}/>
+            <TextField placeholder="Email" value={email} onChangeText={handleEmailChange} keyboardType="email-address" autoCapitalize="none" />
+            <ErrorText error={emailError} />
           </View>
 
           <View>
-            <TextField 
-              placeholder="Telefone" 
-              value={phone} 
-              onChangeText={handlePhoneChange} 
-              keyboardType="phone-pad"
-            />
-            <ErrorText error={phoneError}/>
+            <TextField placeholder="Telefone" value={phone} onChangeText={handlePhoneChange} keyboardType="phone-pad" />
+            <ErrorText error={phoneError} />
           </View>
 
-          <Text style={[styles.sectionSubtitle, {color: colors.yellowTextDark}]}>Medidas do Cliente</Text>
-          
-          {measures.map((measurement, index) => (
+          <Text style={[styles.sectionSubtitle, { color: colors.yellowTextDark }]}>Medidas do Cliente</Text>
+
+          {measures.map((m, index) => (
             <MeasureTextField
               key={index}
-              description={measurement.description}
-              sizeCm={measurement.sizeCm}
+              description={m.description}
+              sizeCm={m.sizeCm}
               onChangeDescription={text => updateMeasure(index, 'description', text)}
               onChangeSizeCm={text => updateMeasure(index, 'sizeCm', text)}
-              onDelete={() => removeMeasure(index)} 
+              onDelete={() => removeMeasure(index)}
             />
           ))}
 
-          <AddMeasureButton onPress={createAddMeasure}/>
+          <AddMeasureButton onPress={createAddMeasure} />
         </View>
       </KeyboardAwareScrollView>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

@@ -8,9 +8,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export function ThemeProvider({ children }) {
 
   const STORAGE_KEY = '@app_theme';
-  // 1) Tenta detectar o esquema atual do sistema (iOS/Android)
-  const colorScheme = Appearance.getColorScheme(); // 'light' ou 'dark' ou null
-  // Se colorScheme for null defaulta para 'light'
+  // Tenta detectar o esquema atual do sistema
+
+  const colorScheme = Appearance.getColorScheme(); 
   const initialScheme = colorScheme === 'dark' ? 'dark' : 'light';
 
   const [theme, setTheme] = useState(initialScheme);
@@ -48,17 +48,6 @@ export function ThemeProvider({ children }) {
     loadThemeFromStorage();
   }, [loadThemeFromStorage]);
 
-  
-
-  // (Opcional) Se quiser reagir a mudança do sistema em tempo real:
-  useEffect(() => {
-    const listener = Appearance.addChangeListener(({ colorScheme }) => {
-      // Se o usuário **não** tiver fixado manualmente, podemos sincronizar com o sistema
-      // Comente a próxima linha se não quiser que o sistema sobreponha a escolha do usuário
-      setTheme(colorScheme === 'dark' ? 'dark' : 'light');
-    });
-    return () => listener.remove();
-  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

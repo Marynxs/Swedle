@@ -1,26 +1,36 @@
-import React, { useState, useEffect, useCallback} from "react";
+import React, { useState, useCallback} from "react";
 import { Text, StyleSheet, View, TouchableOpacity, FlatList} from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Feather } from '@expo/vector-icons'; 
+
+// Componentes
 import ClientCard from "../components/ClientCard";
 import HeaderClientConfig from "../components/Header/HeaderClient&Config";
 
+// Firebase
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
-import { useTheme } from "../hooks/useTheme";
+import { useTheme } from "../context/hooks/useTheme";
+
+// Loading Screen
 import LoadingScreen from "../components/LoadingScreen";
 
+// Máscara de telefone
+import {applyPhoneMask} from '../utils/Validator'
 
+// Tela que lista todos os clientes cadastrados do usuário atual
 export default function ClientScreen({navigation}) {
   const {colors} = useTheme()
 
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
 
+  // useFocusEffect garante que os dados sejam recarregados toda vez que a tela for aberta
   useFocusEffect(
     useCallback(() => {
-      let isActive = true;
+      let isActive = true; // usado para evitar problemas se a tela for desmontada durante a requisição
 
+      // Função assíncrona para buscar clientes e suas medidas no Firestore
       const fetchClients = async () => {
         setLoading(true);
         try {
@@ -29,13 +39,17 @@ export default function ClientScreen({navigation}) {
           const clientsCol = collection(db, "users", user.uid, "clients");
           const clientsSnap = await getDocs(clientsCol);
 
+          // Acessa a coleção de clientes do usuário atual
           const clientsData = await Promise.all(
             clientsSnap.docs.map(async docSnap => {
               const data = docSnap.data();
               const clientId = docSnap.id;
+
+              // Busca as medidas desse cliente
               const measuresCol = collection(db, "users", user.uid, "clients", clientId, "measurements");
               const measuresSnap = await getDocs(measuresCol);
               const measurements = measuresSnap.docs.map(m => ({ id: m.id, ...m.data() }));
+
               return {
                 id: clientId,
                 nome: data.name,
@@ -47,6 +61,7 @@ export default function ClientScreen({navigation}) {
             })
           );
 
+          // Se ainda estiver na tela, atualiza os dados
           if (isActive) setClients(clientsData);
         } catch (err) {
           console.error("Erro ao buscar clientes:", err);
@@ -62,33 +77,12 @@ export default function ClientScreen({navigation}) {
     }, [])
   );
 
-  
-
-  //ALTERAR DEPOIS
-  const applyPhoneMask = (value) => {
-    // Remove todos os caracteres não numéricos
-    const numbers = value.replace(/\D/g, '');
-    
-    // Limita a 11 dígitos (2 para DDD + 9 para número)
-    const limitedNumbers = numbers.slice(0, 11);
-    
-    if (limitedNumbers.length <= 2) {
-      return limitedNumbers;
-    } else if (limitedNumbers.length <= 6) {
-      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2)}`;
-    } else if (limitedNumbers.length <= 10) {
-      // Formato (DD)nnnn-nnnn para números com 8 dígitos
-      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2, 6)}-${limitedNumbers.slice(6)}`;
-    } else {
-      // Formato (DD)nnnnn-nnnn para números com 9 dígitos
-      return `(${limitedNumbers.slice(0, 2)})${limitedNumbers.slice(2, 7)}-${limitedNumbers.slice(7)}`;
-    }
-  };
-
+      // Mostra a tela de loading enquanto carrega os dados
     if (loading) {
       return <LoadingScreen loading={loading} />;
     }
 
+    // Interface principal da tela de clientes
     return (
         <View style={[styles.container , { backgroundColor: colors.background }]}>
             <FlatList style={styles.lista}

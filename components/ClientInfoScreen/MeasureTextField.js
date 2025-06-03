@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '../../context/hooks/useTheme';
 import ErrorText from '../Login&RegisterScreen/ErrorText';
 
 export default function MeasureTextField({

@@ -4,20 +4,30 @@ import { View, Text, StyleSheet, Alert } from 'react-native';
 import Header from '../components/Header/Header';
 import Measurements from '../components/Measurements';
 
+//FireBase
 import { auth, db, storage } from '../firebaseConfig';
 import { collection, doc, getDocs, deleteDoc, getDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
+
+//Loading Screen
 import LoadingScreen from '../components/LoadingScreen';
 
-import { useTheme } from '../hooks/useTheme';
+//Trocar tema
+import { useTheme } from '../context/hooks/useTheme';
+
+// Tela que mostra as medidas de um cliente específico
 export default function ClientMeasuresScreen({ route, navigation }) {
   const {colors} = useTheme()
+
+  // Cliente recebido por parâmetro de rota para saber de que cliente se trata 
   const { client } = route.params;
+
+  // Estados para armazenar medidas, cliente atualizado e status de carregamento
   const [medidas, setMedidas] = useState([]);
   const [loading,setLoading] = useState(false)
   const [clientData, setClientData] = useState(client);
 
-
+  // useFocusEffect garante que os dados sejam recarregados toda vez que a tela for aberta
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
@@ -29,7 +39,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
           if (!user) throw new Error('Usuário não autenticado');
 
 
-          // 1) Recarrega o documento do client
+          // Recarrega o documento do cliente
           const clientRef = doc(
             db,
             'users',
@@ -42,7 +52,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
 
           setClientData( clientSnap.data());
 
-          // 2) Busca todas as medidas
+          // Busca todas as medidas
           const measuresCol = collection(
             db,
             'users',
@@ -73,16 +83,17 @@ export default function ClientMeasuresScreen({ route, navigation }) {
       fetchMeasurements();
 
       return () => {
-        // para evitar setState após unmount
         isActive = false;
       };
     }, [client.id])
   );
 
-    const handleDelete = () => {
+  // Abre o alerta de confirmação de exclusão do cliente
+  const handleDelete = () => {
     Alert.alert(
       'Confirmar exclusão',
       `Deseja apagar o cliente ${clientData.name}?`,
+      //Cria dois botões no alert
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Apagar', style: 'destructive', onPress: deleteClient }
@@ -90,13 +101,14 @@ export default function ClientMeasuresScreen({ route, navigation }) {
     );
   };
 
+  // Faz a parte de excluir o cliente
   const deleteClient = async () => {
     try {
       setLoading(true)
       const user = auth.currentUser;
       if (!user) throw new Error('Usuário não autenticado');
 
-      // 1) Apaga todas as medidas
+      // Apaga todas as medidas
       const measuresCol = collection(
         db,
         'users',
@@ -106,11 +118,11 @@ export default function ClientMeasuresScreen({ route, navigation }) {
         'measurements'
       );
       const measuresSnap = await getDocs(measuresCol);
-      for (const mDoc of measuresSnap.docs) {
-        await deleteDoc(mDoc.ref);
+      for (const measureDoc of measuresSnap.docs) {
+        await deleteDoc(measureDoc.ref);
       }
 
-      // 2) Apaga a foto no Storage (se existir)
+      // Apaga a foto no Storage (se existir)
       if (client.imagemUrl) {
         const imageRef = ref(
           storage,
@@ -119,7 +131,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
         await deleteObject(imageRef);
       }
 
-      // 3) Apaga o documento do client
+      // Apaga o documento do cliente
       const clientRef = doc(
         db,
         'users',
@@ -129,7 +141,7 @@ export default function ClientMeasuresScreen({ route, navigation }) {
       );
       await deleteDoc(clientRef);
 
-      // 4) Feedback e volta
+      // Feedback e volta para a tela anterior (clientes)
       Alert.alert('Sucesso', 'Cliente apagado.');
       navigation.goBack();
     } catch (error) {
