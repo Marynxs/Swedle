@@ -26,7 +26,7 @@ import { useTheme } from '../context/hooks/useTheme';
 import LoadingScreen from '../components/LoadingScreen';
 
 // Validações de campos
-import { validateName, validatePhoneOptional, validateEmailOptional } from '../utils/Validator';
+import { validateName, validatePhoneOptional, validateEmailOptional, applyPhoneMask } from '../utils/Validator';
 
 // Componente principal (Acontece muita coisa)
 // Essa tela é tanto para criar quanto editar um cliente
