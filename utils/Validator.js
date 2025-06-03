@@ -1,7 +1,7 @@
 
   
     // Expressão regular para validar e-mail
-    export const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
+    export const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // Expressão regular que verifica se a senha possui pelo menos uma letra maiúscula, um número e 6 caracteres
 
@@ -60,7 +60,7 @@
     }
   
     // Se digitou algo, aplica a regex normalmente
-    if (emailRegex.test(emailValue)) {
+    if (!emailRegex.test(emailValue)) {
       setEmailError('Email deve ter um formato válido');
       return false;
     } else {
