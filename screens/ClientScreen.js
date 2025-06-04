@@ -10,7 +10,7 @@ import HeaderClientConfig from "../components/Header/HeaderClient&Config";
 // Firebase
 import { auth, db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
-import { useTheme } from "../context/hooks/useTheme";
+import { useTheme } from "../hooks/useTheme";
 
 // Loading Screen
 import LoadingScreen from "../components/LoadingScreen";

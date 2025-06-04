@@ -20,7 +20,7 @@ import { doc, collection, writeBatch, getDocs, getDoc } from 'firebase/firestore
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 // Tema escuro/claro
-import { useTheme } from '../context/hooks/useTheme';
+import { useTheme } from '../hooks/useTheme';
 
 // Tela de carregamento
 import LoadingScreen from '../components/LoadingScreen';

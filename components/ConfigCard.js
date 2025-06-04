@@ -8,7 +8,7 @@ import {
   TextInput
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useTheme } from '../context/hooks/useTheme';
+import { useTheme } from '../hooks/useTheme';
 import TextField from './TextField';
 import ErrorText from './Login&RegisterScreen/ErrorText'
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
 import Header from '../components/Header/Header';
 import Measurements from '../components/Measurements';
 
@@ -13,7 +13,7 @@ import { ref, deleteObject } from 'firebase/storage';
 import LoadingScreen from '../components/LoadingScreen';
 
 //Trocar tema
-import { useTheme } from '../context/hooks/useTheme';
+import { useTheme } from '../hooks/useTheme';
 
 // Tela que mostra as medidas de um cliente específico
 export default function ClientMeasuresScreen({ route, navigation }) {
@@ -90,15 +90,25 @@ export default function ClientMeasuresScreen({ route, navigation }) {
 
   // Abre o alerta de confirmação de exclusão do cliente
   const handleDelete = () => {
-    Alert.alert(
-      'Confirmar exclusão',
-      `Deseja apagar o cliente ${clientData.name}?`,
-      //Cria dois botões no alert
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Apagar', style: 'destructive', onPress: deleteClient }
-      ]
-    );
+    const message = `Deseja apagar o cliente ${clientData.name}?`;
+
+    if (Platform.OS === 'web') {
+      // Web: usa confirm
+      const confirm = window.confirm(message);
+      if (confirm) {
+        deleteClient();
+      }
+    } else {
+      // Mobile: usa Alert nativo
+      Alert.alert(
+        'Confirmar exclusão',
+        message,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Apagar', style: 'destructive', onPress: deleteClient }
+        ]
+      );
+    }
   };
 
   // Faz a parte de excluir o cliente

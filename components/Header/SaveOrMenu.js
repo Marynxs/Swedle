@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Image, Modal} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../context/hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function SaveOrMenu({
   onSave,          

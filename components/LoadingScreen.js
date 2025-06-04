@@ -4,7 +4,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import { useTheme } from '../context/hooks/useTheme';
+import { useTheme } from '../hooks/useTheme';
   
 export default function LoadingScreen({loading}) {
   const {colors} = useTheme()

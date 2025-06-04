@@ -2,7 +2,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, View, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useTheme } from '../../context/hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function AddMeasureButton({ onPress }) {
   const {colors} = useTheme()

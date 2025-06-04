@@ -1,5 +1,5 @@
 import { Text, StyleSheet, View } from 'react-native';
-import { useTheme } from '../../context/hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme';
 
 
 export default function RedirectText({text, link, onPress }) {

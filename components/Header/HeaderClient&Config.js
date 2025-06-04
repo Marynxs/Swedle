@@ -1,6 +1,6 @@
 import {Text, StyleSheet} from 'react-native';
 
-import { useTheme } from '../../context/hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function HeaderClientConfig(props){
     const {colors} = useTheme()

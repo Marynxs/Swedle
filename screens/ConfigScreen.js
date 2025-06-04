@@ -19,7 +19,7 @@ import { isValidEmail, isValidPassword } from '../utils/Validator';
 
 // Firebase e contexto de tema
 import { auth } from '../firebaseConfig';
-import { useTheme } from '../context/hooks/useTheme';
+import { useTheme } from '../hooks/useTheme';
 import {
   EmailAuthProvider,
   reauthenticateWithCredential,

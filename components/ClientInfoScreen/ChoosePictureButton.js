@@ -1,7 +1,7 @@
 import { View, StyleSheet,TouchableOpacity, Image} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useTheme } from '../../context/hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme';
 
 
 
